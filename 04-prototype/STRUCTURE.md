@@ -1,4 +1,4 @@
-# 04-prototype/ 结构说明（build-2.4.18，N6 r22 / PRD v2.0.0 研发交付版）
+# 04-prototype/ 结构说明（build-2.4.18，N6 r22 / PRD v2.0.1 研发交付版）
 
 ## N4 r2 产出形态（用户裁决：原型 + PRD 的结果）
 
@@ -275,7 +275,7 @@ skill 的 N4 规范默认 `index.html + app.js + data-pages-*.js` 三分文件�
 **用户指令两项**：① 资源清单去掉；② PRD 很乱看不懂、需交付研发开发——重新梳理为研发交付版 PRD，仅保留目前原型对应的需求，调整优化的内容不体现。
 
 - `index.html` 升 build-2.4.18：**P8 资源清单（page-catalog）整页移除**——导航「资源清单」按钮、`#page-catalog` section、`#catTabs` 相关 CSS、catalog JS 区块（curLib/catPage/PAGE_SIZE/ledgerRows/impTagHtml/catRows/catFiltered/drawRing3D/renderCatTabs/renderCat/事件绑定/gotoCatalog）、`window.gotoCatalog`、PAGE_META `'page-catalog'` 路由项、TOUR 巡播条目、库抽屉「前往资源清单 →」按钮全部删除；**LEDGER_CATS 数据保留**（P2 库卡/P3/导入链路仍用）
-- **03-prd.md 全量重写为研发交付版 v2.0.0**：仅保留当前原型对应需求（§1 概述 / §2 全局口径 / §3 页面清单与导航（5 页） / §4 页面需求 / §5 Excel 导入 / §6 通用交互 / §7 技术与非功能 / §8 验收标准 D-01–D-11），不含任何历史调整与修订记录；功能点 34 条（当前生效）；功能清单同步重写（34 条，移除存档与 P8/P9/P10 条目）
+- **03-prd.md 全量重写为研发交付版 v2.0.0 → v2.0.1**（Gate 修改意见「太复杂、模块太多；只保留功能点和业务规则」→ 重构为两部分：功能点按页面分组 34 条 + 业务规则 R-01–R-13 逐条写清规则与判定）：仅保留当前原型对应需求（§1 概述 / §2 全局口径 / §3 页面清单与导航（5 页） / §4 页面需求 / §5 Excel 导入 / §6 通用交互 / §7 技术与非功能 / §8 验收标准 D-01–D-11），不含任何历史调整与修订记录；功能点 34 条（当前生效）；功能清单同步重写（34 条，移除存档与 P8/P9/P10 条目）
 - 文档链同步：verify-rules.js（R-01 改库卡双口径断言、R-02 改「待补充」断言、R-11 升 2.4.18、头注 r22）、prototype-prd.html（PAGES 8→7、P8 条目移除、页脚 PRD v2.0.0/2.4.18、data-i 5/6）、03-prd-preview.html（v2.0.0/2.4.18、34 条、F-027/F-030 节选行移除）、project-spec.md（版本绑定/页面编号表 P8 行/R-01/R-12/R-13）、本文件、state（G26）
 
 ### r22 验证记录
