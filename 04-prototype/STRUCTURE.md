@@ -1,4 +1,4 @@
-# 04-prototype/ 结构说明（build-2.4.16，N4 r20 / PRD v1.8.0）
+# 04-prototype/ 结构说明（build-2.4.17，N4 r21 / PRD v1.8.1）
 
 ## N4 r2 产出形态（用户裁决：原型 + PRD 的结果）
 
@@ -250,3 +250,22 @@ skill 的 N4 规范默认 `index.html + app.js + data-pages-*.js` 三分文件�
   - T5 抽屉：两 Tab（目录信息 / 已接入字段 N）、物理表/源表行、治理表行、数据表 Tab 均不存在
 - 临时 harness/fixture/结果文件已清理；8899 服务已停止
 - **已知边界**：规则台账 117 / 场景列表 / TOP5 接口明细保持快照；治理成果/场景服务涉及供数单位的口径恒快照；导入仅内存态；`DATA_TABLES` 全量弹窗仍为快照口径；R-05/R-07 边界修订待 Gate 确认
+
+## PRD v1.8.1 关联（N4 r21，2026-11-26）
+
+**用户指令五项**：① 各模块明细展示区增加轮播能力；② 大屏不直接展示导入模板/导入入口，改空白区 3 连击隐藏入口；③ 数据治理页统计总数置顶/明细在下、移除「更新机制」Tab；④ 单位成果填报删除恒空「文档 —」+ 左侧板块丰富；⑤ 场景服务不展示「规划场景」、场景服务并入治理成果页、模板「治理成果」「场景服务」两 sheet 合并。
+
+- `index.html` 升 build-2.4.17：`startCarousel`/`refreshCarousels`（caroTimers Map、溢出判定、行高步进、悬停暂停、隐藏容器跳过）+ 6 容器 `data-caro`（分页区不轮播）；`hiddenEntry` 三连击隐藏入口（删顶栏 `#btnTpl`/`#btnImport` 与 P2 内联按钮，2s 窗口、交互元素清零）；治理页 govSummary 置顶 + 「更新机制」Tab 移除；成果填报去「· 文档 —」；P3 规划场景移除；P7 删除、P6 合并「治理成果 · 场景服务」；**修复 r20 残留 `scOk is not defined`**（`hasValid=aOk||gOk||ahOk||fOk`）
+- 模板重构为**四工作表通用版 v1.8.1**：「数据接入」8 列 /「数据治理」6 列 /「治理成果与场景服务」8 列全局一行（前 4 成果 + 后 4 场景，示例 452/851/45/7/746/125,740,861/5/8（示例））/「字段明细」；zip 重打包
+- 文档链同步：03-prd.md v1.8.1（功能点 45，F-051/F-052 新增）、权威 PRD v1.8.1 + §31、功能清单 45 条、preview、对照页（PAGES 8 条，P7 删除）、project-spec、本文件、state G24
+
+### r21 验证记录
+
+- `node --check` 通过；`node verify-rules.js` **13/13 PASS**（R-11 build-2.4.17 / PRD v1.8.1；R-12 隐藏入口断言；R-13 全量重写——govSummary 置顶 / 无 updateView / 四 sheet S() / `parseGlobal('治理成果与场景服务'` / hasAch||hasScn / `const gvA=` / 无「· 文档 —」/ 轮播函数与 data-caro / 模板四 sheet 解压断言；模板目录过滤器排除 `_` 前缀 fixture）
+- **同源端到端 harness 18 项 ALL-PASS**（`_r21_harness.html` 保留复现，8899 同源 + headless Chrome dump-dom）：
+  - T1a 三连击开启导入浮板 / T1b 再次三连击收起 / T1c 浮板按钮点击不触发清零（按钮点击后等 2s 窗口过期）
+  - T2a 无 page-scenes / T2b 导航含合并页「治理成果 · 场景服务」/ T2c 无更新机制 Tab / T2d govSummary 置顶
+  - T3 原模板导入全跳过（示例行规则），**顺带揪出 r20 残留 `scOk is not defined` 真 bug**（被 impCommit 完成文案掩盖，仅原模板路径暴露）
+  - T4a-g fixture（`_r21_fixture.xlsx`，`_mk_fixture.py` 生成保留复现）：impGo 可用 / svcMon 210,000,000 / 成果 4 值 / 场景 830+6 / 无规划场景 KPI / 无「文档 —」/ 左侧板块丰富
+  - T5a-b 轮播函数定义 + 6 个 data-caro 容器
+- **已知边界**：导入仅内存态；规则台账 117 / TOP5 接口明细等列表型明细保持快照；分页区（P4 目录清单 / P8 全部已接入数据）不轮播
