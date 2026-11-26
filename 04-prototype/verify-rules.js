@@ -15,7 +15,8 @@
  * r12：总览驾驶舱展示入口移除；R-13 修订单工作表模板口径，R-11 断言升 build-2.4.8
  * r11：新增 R-13，R-11 断言升 build-2.4.7
  * r21：用户指令五项调整（PRD v2.0.0 / build-2.4.18）——R-11 升 build-2.4.18；R-06 改写为「既有服务独立统计，规划场景不再展示」（场景服务并入治理成果页）；R-12 升四工作表口径；R-13 重写：合并 sheet「治理成果与场景服务」8 列、page-scenes 移除、更新机制移除、data-caro 轮播、隐藏导入入口三连击、单位填报列表无「文档 —」、模板解压断言改四工作表
- * r22：用户指令两项（PRD v2.0.0 / build-2.4.18）——①资源清单页移除：R-01 改断言库卡「应建数据目录/台账已接入/台账待补充」并列（原 P8 双口径统计随页删除）、R-02 改断言「待补充」口径、R-11 升 build-2.4.18、R-13 增无 page-catalog 断言②PRD 重写为研发交付版 v2.0.0→v2.0.1（Gate 修改意见：只保留功能点与业务规则两部分，业务规则逐条写清）
+ * r22：用户指令两项（PRD v2.0.0 / build-2.4.18）——①资源清单页移除：R-01 改断言库卡「应建数据目录/台账已接入/台账待补充」并列（原 P8 双口径统计随页删除）、R-02 改断言「待补充」口径、R-11 升 build-2.4.18、R-13 增无 page-catalog 断言②PRD 重写为研发交付版 v2.0.0→v2.0.1（Gate 修改意见：只保留功能点与业务规则两部分，业务规则逐条写清）；r23：顶栏主导航最后一个按钮「库资源门户」移除——R-11 升 build-2.4.19 + 加无 `data-page="libraries"` 结构性断言（无主导航入口）
+ * r24：用户指令「导入模板还是不对，现在的数据接入 sheet 应该是数据总览，再增加一张数据接入 sheet」——模板改五工作表（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）：R-11 升 build-2.4.20、PRD v2.0.3；R-12/R-13 升五工作表口径；R-13 增「数据接入」目录级明细 sheet（7 列）解压断言 + 目录台账写入断言（LEDGER_CATS imported 标记 / impCatKeys / 更新频率枚举）
  */
 'use strict';
 const fs = require('fs');
@@ -50,7 +51,7 @@ const dom = rendered.replace(/<script[\s\S]*?<\/script>/gi, '');
 
 const RULES = [
   { id: 'R-01', name: '双口径并列不调平',
-    doc: '库卡应建数据目录（清单态）与接入台账（台账态）独立并列、不强行调平（PRD v2.0.1 / R-01）',
+    doc: '库卡应建数据目录（清单态）与接入台账（台账态）独立并列、不强行调平（PRD v2.0.2 / R-01）',
     test: () => dom.includes('应建目录') && dom.includes('已录入明细') && dom.includes('台账待补充') },
   { id: 'R-02', name: '未知≠0，不得推算',
     doc: '未填报项显示“—”或“待补充”，不得用其他数量推算（03-prd.md 7.5 / R-02）',
@@ -81,19 +82,20 @@ const RULES = [
     doc: '数据字段 1,023 项；已接入明细 896 / 需求 982（03-prd.md 7.2 / R-10）',
     test: () => dom.includes('1,023') && src.includes('896') },
   { id: 'R-11', name: '版本标识可见 + hash 导航（对照页联动）',
-    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.18），与 PRD / state 版本一致（PRD v2.0.1）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）',
-    test: () => dom.includes('build-2.4.18') && src.includes('id="buildTag"')
+    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.20），与 PRD / state 版本一致（PRD v2.0.3）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）',
+    test: () => dom.includes('build-2.4.20') && src.includes('id="buildTag"')
+      && !src.includes('data-page="libraries"')
       && src.includes("addEventListener('hashchange'") && src.includes('window.setPage=setPage') },
-  { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版四工作表模板（F-046/F-047 / PRD v1.5.0→v1.8.1）',
-    doc: 'v1.8.1 §31 / 03-prd.md §5–§6：大屏不直接展示导入模板/导入入口，空白区域 2 秒内连击 3 次浮出隐藏入口面板；导入居中弹窗（遮罩/Escape/焦点约束），确认后提供导入结果预览，错误提示规则分级落地；零依赖解析写入内存并保留双口径与未知≠0 口径（N4 r9 新增 / r10 修订 / r20 五工作表 / r21 四工作表+隐藏入口）',
+  { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版五工作表模板（F-046/F-047 / PRD v2.0.3）',
+    doc: '03-prd.md §3 / §6：大屏不直接展示导入模板/导入入口，空白区域 2 秒内连击 3 次浮出隐藏入口面板；导入居中弹窗（遮罩/Escape/焦点约束），确认后提供导入结果预览，错误提示规则分级落地；零依赖解析写入内存并保留双口径与未知≠0 口径（N4 r9 新增 / r20 指标数值 / r21 四工作表+隐藏入口 / r24 五工作表）',
     test: () => dom.includes('下载导入模板') && dom.includes('Excel 导入') && src.includes('openImportModal')
-      && src.includes('openModal') && src.includes("id=\"modal\"") && src.includes('数据接入导入结果')
+      && src.includes('openModal') && src.includes("id=\"modal\"") && src.includes('数据总览导入结果') && src.includes('数据接入目录导入结果')
       && src.includes('DecompressionStream') && src.includes('impFmtRows') && fs.existsSync(path.join(path.dirname(file), 'templates'))
       /* r21 隐藏导入入口：页面无直接导入按钮，空白三连击开启 */
       && !src.includes('id="btnTpl"') && !src.includes('id="btnImport"')
       && src.includes('hiddenEntry') && src.includes('_hideClicks') && src.includes('btnTplH') && src.includes('btnImportH') },
-  { id: 'R-13', name: '明细区轮播 / 四工作表导入模板与合并 sheet / 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-020/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.1）',
-    doc: 'v1.8.1 §5/§7/§31 / 03-prd.md：通用版模板四工作表（数据接入 8 列全必填 / 数据治理 6 列全必填·字段级 / 治理成果与场景服务 8 列全局一行（原两 sheet 合并） / 字段明细 5 必填列），每 sheet 第 1 行说明行、第 2 行表头、第 3 行起数据（信用库示例，任一单元格含「示例」整行跳过）；合并 sheet 按键拆分写 IMP_ACH/IMP_SCENE 驱动合并页 KPI；治理成果页左侧板块丰富、单位填报列表无「文档 —」；治理页统计总数置顶+明细在下、「更新机制」Tab 移除；场景服务并入治理成果页、规划场景不再展示；各明细滚动区 data-caro 轮播（分页区不轮播）；填报值替换、未填保持快照（所有数据来源均为数据表导入）',
+  { id: 'R-13', name: '明细区轮播 / 五工作表导入模板（数据总览+数据接入目录明细）/ 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-019b/F-021/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.3）',
+    doc: '03-prd.md §3–§6：通用版模板五工作表（数据总览 8 列全必填 / 数据接入目录级明细 7 列（数据源单位 / 数据目录 / 字段数 / 数据量 / 更新频率 / 数据时间范围 / 最后更新时间，前 5 列必填 + 更新频率枚举）/ 数据治理 6 列全必填·字段级 / 治理成果与场景服务 8 列全局一行（原两 sheet 合并） / 字段明细 5 必填列），每 sheet 第 1 行说明行、第 2 行表头、第 3 行起数据（任一单元格含「示例」整行跳过）；「数据接入」sheet 按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 / 目录抽屉），已登记目录按填报值更新、新目录登记为导入目录；合并 sheet 按键拆分写 IMP_ACH/IMP_SCENE 驱动合并页 KPI；治理成果页左侧板块丰富、单位填报列表无「文档 —」；治理页统计总数置顶+明细在下、「更新机制」Tab 移除；场景服务并入治理成果页、规划场景不再展示；各明细滚动区 data-caro 轮播（分页区不轮播）；填报值替换、未填保持快照（所有数据来源均为数据表导入）',
     test: () => dom.includes('查询全部已接入数据') && src.includes('LIB_ICONS') && src.includes('openAllDataModal')
       && src.includes('openDirDrawer') && src.includes('DATA_TABLES')
       /* r20 数据接入页改造：字段结构预览 / 数据量构成模块移除；目录清单每页 20 条分页；抽屉两 Tab（去物理表/治理表/数据表 Tab） */
@@ -103,9 +105,14 @@ const RULES = [
       && !src.includes('dirTab(2)')
       /* r21 治理页重构：统计总数置顶、明细在下；「更新机制」Tab 移除 */
       && src.includes('id="govSummary"') && !src.includes('id="updateView"') && !src.includes('class="govtab"')
-      /* r21 导入解析：四工作表定位 + 合并 sheet「治理成果与场景服务」按键拆分 + 说明行/表头三行结构 + 字段级规则 + 校验条款 */
-      && src.includes("S('数据接入')") && src.includes("S('数据治理')") && src.includes("S('治理成果与场景服务')")
+      /* r21 导入解析：五工作表定位（r24）+ 合并 sheet「治理成果与场景服务」按键拆分 + 说明行/表头三行结构 + 字段级规则 + 校验条款 */
+      && src.includes("S('数据总览')") && src.includes("S('数据接入')") && src.includes("S('数据治理')") && src.includes("S('治理成果与场景服务')")
       && src.includes("S('字段明细')") && src.includes("parseGlobal('治理成果与场景服务'")
+      /* r24 数据接入目录级明细：解析 + 写目录台账（已登记更新 / 新目录 imported 登记）+ 更新频率枚举 */
+      && src.includes('const impCats=[]') && src.includes('const impCatKeys=new Set()')
+      && src.includes('更新频率应为 ') && src.includes('目录在文件内重复')
+      && src.includes('LEDGER_CATS.push({id:LEDGER_CATS.reduce') && src.includes('imported:true});catNew++')
+      && src.includes('数据接入目录 ') && src.includes('新增登记 ')
       && src.includes('ACH_KEYS') && src.includes('SCN_KEYS') && src.includes('hasAch||hasScn')
       && src.includes('const IMP_GOV_RULES=[]') && src.includes('let IMP_ACH=null,IMP_SCENE=null')
       && src.includes('function renderGovRules') && src.includes('字段级规则（导入')
@@ -142,30 +149,52 @@ const RULES = [
           return '';
         };
         const readSheet = (p, sheetName) => readPart(p, 'xl/worksheets/' + sheetName + '.xml');
+        /* r23：模板可能被 Excel/WPS 打开另存（t="s" + xl/sharedStrings.xml），校验须同时兼容 inlineStr 与 sharedStrings 两种单元格存储 */
+        const sharedOf = p => {
+          const x = readPart(p, 'xl/sharedStrings.xml');
+          if (!x) return [];
+          return [...x.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(m =>
+            [...m[1].matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(t => t[1]).join('')
+              .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+        };
+        const cellVal = (xml, ss) => {
+          const t = (xml.match(/\bt="([^"]+)"/) || [])[1];
+          if (t === 's') { const v = xml.match(/<v>(\d+)<\/v>/); return v ? (ss[+v[1]] || '') : ''; }
+          if (t === 'inlineStr') return [...xml.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m => m[1]).join('');
+          const v = xml.match(/<v>([^<]*)<\/v>/); return v ? v[1] : '';
+        };
         /* r21 四工作表模板：数据接入 / 数据治理 / 治理成果与场景服务（原「治理成果」「场景服务」合并）/ 字段明细；
            每 sheet 第 1 行说明行、第 2 行表头（必填列带 *）、第 3 行起数据；示例为信用库（任一单元格含「示例」整行跳过） */
         return ls.length === 1 && ls[0].includes('通用版')
           && (() => {
-            const p = path.join(d, ls[0]);
+            /* r23：模板真源取 导入模板.zip（原始打包，与线上站点一致）；xlsx 可能被 Excel/WPS 打开另存改写，不作为校验依据 */
+            const p = path.join(d, '导入模板.zip');
             const wb = readPart(p, 'xl/workbook.xml');
             const names = [...wb.matchAll(/<sheet name="([^"]+)"/g)].map(m => m[1]);
+            const ss = sharedOf(p);
             const s1 = readSheet(p, 'sheet1'), s2 = readSheet(p, 'sheet2'), s3 = readSheet(p, 'sheet3'),
-                  s4 = readSheet(p, 'sheet4');
-            /* sheet1 数据接入：覆盖范围 B 列「一类一行」——数据行（第 3 行起）每格只放一个覆盖类别（六库预填 21 行 + 信用库示例 4 行 ≥ 25 格；第 1 行说明行不计） */
-            const bTexts = [...s1.matchAll(/<c r="B(\d+)"[^>]*><is><t[^>]*>([^<]*)<\/t><\/is><\/c>/g)].filter(m => +m[1] >= 3).map(m => m[2]);
-            return JSON.stringify(names) === JSON.stringify(['数据接入', '数据治理', '治理成果与场景服务', '字段明细'])
-              && ['单位*','覆盖范围*','库名称*','库类型*','库接入数据量*','应建目录数*','库数据字段数*','库接入源表数*'].every(h => s1.includes(h))
-              && s1.includes('一类一行') && s1.includes('必填') && bTexts.length >= 21
+                  s4 = readSheet(p, 'sheet4'), s5 = readSheet(p, 'sheet5');
+            /* 断言目标 = sheet XML + 共享字符串全文（inlineStr 版 ss 为空，等价于原断言） */
+            const T = x => x + '|' + ss.join('|');
+            /* sheet1 数据总览（r24 改名，原「数据接入」）：覆盖范围 B 列「一类一行」——数据行（第 3 行起）每格只放一个覆盖类别（六库预填 21 行 + 信用库示例 4 行 ≥ 25 格；第 1 行说明行不计） */
+            const bTexts = [...s1.matchAll(/<c r="B(\d+)"[^>]*>([\s\S]*?)<\/c>/g)].filter(m => +m[1] >= 3)
+              .map(m => cellVal(m[0], ss)).filter(v => v !== '');
+            return JSON.stringify(names) === JSON.stringify(['数据总览', '数据接入', '数据治理', '治理成果与场景服务', '字段明细'])
+              && ['单位*','覆盖范围*','库名称*','库类型*','库接入数据量*','应建目录数*','库数据字段数*','库接入源表数*'].every(h => T(s1).includes(h))
+              && T(s1).includes('一类一行') && T(s1).includes('必填') && bTexts.length >= 21
               && bTexts.every(t => !/[、，,\n]/.test(t))
-              && s1.includes('社会信用基础库（示例）')
-              && ['规则编号*','库名称*','库类型*','目标表*','字段*','规则描述*'].every(h => s2.includes(h))
-              && s2.includes('细化到字段') && s2.includes('（示例）')
-              /* sheet3 合并 sheet：8 列全平台汇总一行（治理成果 4 列 + 场景服务 4 列，r21 合并） */
-              && ['流程节点数','治理字段次数','结果表数量','沉淀文档数','累计订阅次数','接口调用次数','服务接口数','规划场景数'].every(h => s3.includes(h))
-              && s3.includes('452（示例）') && s3.includes('746（示例）')
-              && ['所属数据目录*','数据源单位*','字段名称*','字段类型*','字段长度*','字段说明'].every(h => s4.includes(h))
-              && ['varchar','int','decimal','date','datetime'].every(t => s4.includes(t))
-              && s4.includes('失信被执行人名单（示例）');
+              && T(s1).includes('社会信用基础库（示例）')
+              /* sheet2 数据接入（r24 新增，目录级明细 7 列）：前 5 列必填 + 更新频率枚举说明 + 示例行 */
+              && ['数据源单位*','数据目录*','字段数*','数据量*','更新频率*','数据时间范围','最后更新时间'].every(h => T(s2).includes(h))
+              && T(s2).includes('更新频率枚举') && T(s2).includes('失业保险参保信息（示例）')
+              && ['规则编号*','库名称*','库类型*','目标表*','字段*','规则描述*'].every(h => T(s3).includes(h))
+              && T(s3).includes('细化到字段') && T(s3).includes('（示例）')
+              /* sheet4 合并 sheet：8 列全平台汇总一行（治理成果 4 列 + 场景服务 4 列，r21 合并） */
+              && ['流程节点数','治理字段次数','结果表数量','沉淀文档数','累计订阅次数','接口调用次数','服务接口数','规划场景数'].every(h => T(s4).includes(h))
+              && T(s4).includes('452（示例）') && T(s4).includes('746（示例）')
+              && ['所属数据目录*','数据源单位*','字段名称*','字段类型*','字段长度*','字段说明'].every(h => T(s5).includes(h))
+              && ['varchar','int','decimal','date','datetime'].every(t => T(s5).includes(t))
+              && T(s5).includes('失信被执行人名单（示例）');
           })();
       })()},
 ];
