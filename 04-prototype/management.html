@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>建设任务与数据口径 · 江西省基础库专题库</title>
+<style>
+:root{
+  --bg:#F7F7FA; --panel:#FFFFFF; --line:#E8E8E8; --line2:rgba(22,119,255,.42);
+  --cyan:#1677FF; --cyan2:#1890FF; --blue:#37AAFB; --violet:#6B83FB; --amber:#FAAD14; --green:#52C41A;
+  --red:#FF3141; --slate:#8C93A0; --muted:#4E5969; --dim:#86909C; --txt:#1D2129;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#EEF2F8;color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;overflow:hidden}
+#viewport{position:fixed;inset:0;overflow:hidden;background:
+  radial-gradient(1040px 640px at 4% -8%,rgba(95,190,255,.34) 0%,transparent 66%),
+  radial-gradient(940px 620px at 97% 2%,rgba(107,131,251,.24) 0%,transparent 64%),
+  radial-gradient(1240px 580px at 50% -16%,#D9EAFF 0%,rgba(217,234,255,0) 70%),
+  radial-gradient(1560px 540px at 50% 112%,rgba(22,119,255,.28) 0%,transparent 72%),
+  radial-gradient(860px 480px at 0% 100%,rgba(95,190,255,.28),transparent 64%),
+  radial-gradient(860px 480px at 100% 100%,rgba(107,131,251,.24),transparent 64%),
+  linear-gradient(180deg,#E8F3FF 0%,#E1EFFF 30%,#D5E8FF 62%,#C6DDFB 100%)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center;
+  padding:18px 26px 26px;display:flex;flex-direction:column;gap:14px}
+#stage::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:
+  linear-gradient(rgba(22,119,255,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(22,119,255,.075) 1px,transparent 1px);
+  background-size:60px 60px;mask-image:radial-gradient(ellipse at 50% 40%,#000 34%,transparent 84%)}
+#bg-wave{position:absolute;left:0;bottom:0;width:100%;height:260px;pointer-events:none;z-index:0}
+header{display:flex;align-items:center;gap:18px;height:74px;position:relative;z-index:2;border-bottom:1px solid var(--line);padding:0 6px}
+.logo{width:46px;height:50px;display:grid;place-items:center;font-size:22px;font-weight:700;color:#FFFFFF;
+  background:linear-gradient(180deg,#5FBEFF,var(--cyan));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  filter:drop-shadow(0 4px 10px rgba(22,119,255,.38))}
+header h1{font-size:23px;letter-spacing:.1em;font-weight:700;color:#0B4FD6}
+@supports (-webkit-background-clip:text){
+  header h1{background:linear-gradient(90deg,#0A3FA8 0%,#1257D6 42%,#2E86FF 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+}
+header .en{font-size:9px;letter-spacing:.24em;color:#9AA3B0;margin-top:5px}
+.tabs{margin-left:auto;display:flex;gap:6px}
+.tabs button{padding:9px 20px;font-size:13px;color:var(--muted);background:#FFFFFF;
+  border:1px solid #E5E6EB;cursor:pointer;letter-spacing:.06em;transition:.25s;border-radius:4px}
+.tabs button:hover{color:var(--cyan);border-color:#BBD6FF;background:#F7FBFF}
+.tabs button.on{color:#FFFFFF;border-color:transparent;background:linear-gradient(90deg,var(--cyan),var(--cyan2));
+  box-shadow:0 6px 16px rgba(22,119,255,.28);font-weight:600}
+.home{margin-left:12px;font-size:12px;color:var(--cyan);text-decoration:none;border:1px solid #E5E6EB;
+  padding:9px 16px;background:#FFFFFF;letter-spacing:.06em;transition:.25s;border-radius:4px}
+.home:hover{border-color:#BBD6FF;background:#F2F7FF;box-shadow:0 4px 12px rgba(22,119,255,.14)}
+.clock{text-align:right;min-width:150px}
+.clock b{display:block;font-size:24px;letter-spacing:.06em;font-family:Bahnschrift,Consolas,monospace;color:#1D2129}
+.clock span{font-size:10px;color:var(--dim);letter-spacing:.08em}
+main{flex:1;min-height:0;position:relative;z-index:2}
+.page{display:none;height:100%}
+.page.on{display:block;animation:fade .45s both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.panel{position:relative;border:1px solid #EDF0F5;background:linear-gradient(180deg,#FFFFFF,#FCFDFF);border-radius:6px;
+  box-shadow:0 1px 2px rgba(29,33,41,.03),0 8px 24px rgba(22,119,255,.07)}
+.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;border:1px solid var(--cyan);opacity:.45}
+.panel::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.panel::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.panel-title{display:flex;align-items:center;gap:10px;height:40px;padding:0 16px;font-size:14px;font-weight:600;letter-spacing:.08em;
+  color:#1D2129;border-bottom:1px solid #F0F2F5}
+.panel-title::before{content:"";width:3px;height:14px;border-radius:1px;background:linear-gradient(180deg,#5FBEFF,var(--cyan));box-shadow:0 0 8px rgba(22,119,255,.4)}
+.tag{font-size:9px;color:var(--cyan);border:1px solid #BBD6FF;background:#E6F0FF;padding:2px 6px;letter-spacing:.08em;border-radius:3px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;height:112px}
+.kpi{position:relative;border:1px solid #EDF0F5;padding:14px 18px;background:linear-gradient(180deg,#FFFFFF,#FAFCFF);border-radius:6px;
+  box-shadow:0 1px 2px rgba(29,33,41,.03),0 8px 22px rgba(22,119,255,.07);overflow:hidden;transition:.3s}
+.kpi:hover{transform:translateY(-3px);border-color:#CFE1FF;box-shadow:0 16px 34px rgba(22,119,255,.16)}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--cyan),rgba(22,119,255,0))}
+.kpi.hero{background:linear-gradient(135deg,#5FBEFF 0%,#367EFF 62%,#1677FF 100%);border-color:transparent;
+  box-shadow:0 10px 26px rgba(22,119,255,.28)}
+.kpi.hero::after{background:linear-gradient(180deg,#FFFFFF,rgba(255,255,255,0))}
+.kpi.hero::before{content:"";position:absolute;inset:-40% -10%;background:radial-gradient(closest-side,rgba(255,255,255,.22),transparent);animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.35}50%{opacity:.9}}
+.kpi>*{position:relative}
+.k-label{font-size:11px;color:var(--muted);letter-spacing:.1em}
+.k-val{display:flex;align-items:baseline;gap:6px;margin-top:8px}
+.k-val b{font-size:38px;line-height:1;font-weight:600;font-family:Bahnschrift,Consolas,monospace;
+  background:linear-gradient(180deg,#1D2129 0%,#14335E 48%,#1677FF 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 1px 0 #FFFFFF) drop-shadow(0 2px 0 #DCE9FF) drop-shadow(0 3px 0 #C3DBFF) drop-shadow(0 7px 12px rgba(22,119,255,.2))}
+.kpi.hero .k-val b{background:linear-gradient(180deg,#FFFFFF 0%,#F0F7FF 60%,#D6E9FF 100%);-webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 1px 0 rgba(10,60,140,.35)) drop-shadow(0 4px 10px rgba(0,40,100,.28))}
+.kpi.hero .k-label,.kpi.hero .k-val span,.kpi.hero .k-sub{color:rgba(255,255,255,.92)}
+.k-val span{font-size:12px;color:var(--muted)}
+.k-sub{margin-top:8px;font-size:10px;color:var(--dim);letter-spacing:.04em}
+.lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;height:calc(100% - 126px);margin-top:14px}
+.lane{display:flex;flex-direction:column;min-height:0;border:1px solid #EDF0F5;border-radius:6px;background:#FFFFFF;
+  box-shadow:0 1px 2px rgba(29,33,41,.03),0 8px 22px rgba(22,119,255,.06);overflow:hidden}
+.lane-h{padding:10px 12px;border-bottom:1px solid #EDF2F9;background:linear-gradient(180deg,#F5F9FF,#FFFFFF)}
+.lane-h b{font-size:14px;letter-spacing:.05em;font-weight:600}
+.lane-h .sub{font-size:10px;color:var(--dim);margin-top:4px}
+.lane-body{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:7px}
+.lane-body::-webkit-scrollbar{width:4px}
+.lane-body::-webkit-scrollbar-thumb{background:rgba(22,119,255,.25);border-radius:2px}
+.tcard{border:1px solid #EDF2F9;background:#FAFCFF;padding:9px 10px;transition:.25s;animation:tin .5s both;border-radius:4px}
+.tcard:hover{transform:translateY(-2px);border-color:#BBD6FF;background:#FFFFFF;box-shadow:0 8px 20px rgba(22,119,255,.14)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tcard .no{font-size:10px;color:var(--dim);font-family:Bahnschrift,monospace}
+.tcard b{font-size:12px;font-weight:500;color:#1D2129}
+.tcard .unit{font-size:10px;color:var(--dim);margin-top:5px;line-height:1.5}
+.badge{display:inline-flex;align-items:center;font-size:9px;padding:2px 7px;border:1px solid;letter-spacing:.05em;border-radius:3px}
+.badge.info{color:var(--cyan);border-color:#BBD6FF;background:#E6F0FF}
+.lane-f{padding:8px 10px;border-top:1px dashed #EFF1F5;background:#F8FBFF;font-size:10px;color:var(--dim);line-height:1.6}
+.lane-f b{color:#1677FF;font-weight:500}
+.grid4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:100%}
+.note{font-size:11px;color:var(--muted);line-height:1.9;padding:12px 16px}
+.note b{color:#1677FF;font-weight:500}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#EDF1F7;margin:0 16px;border:1px solid #EDF1F7;border-radius:4px;overflow:hidden}
+.dgrid div{background:#F9FBFE;padding:11px 12px}
+.dgrid span{display:block;font-size:10px;color:var(--dim);letter-spacing:.06em;margin-bottom:4px}
+.dgrid b{font-size:13px;font-weight:500;color:#1D2129}
+.dict{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.dict>div{display:flex;gap:8px;align-items:flex-start}
+.dict .badge{flex:none}
+.dict .d{font-size:10px;color:var(--dim);line-height:1.6}
+.mlist{padding:6px 16px 12px}
+.it{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #EFF1F5}
+.it:last-child{border-bottom:0}
+.idx{font-size:10px;color:var(--dim);font-family:Bahnschrift,monospace}
+.it b{font-size:12px;font-weight:500;color:#1D2129}
+.it small{display:block;font-size:10px;color:var(--dim);margin-top:3px}
+.it .badge{margin-left:auto}
+.badge.bad{color:#E82D3B;border-color:#FFC9CE;background:#FFF1F0}
+.badge.warn{color:#D48806;border-color:#FFE3A3;background:#FFF8E8}
+.badge.plan{color:#86909C;border-color:#E5E6EB;background:#F5F6F8}
+.badge.ok{color:#389E0D;border-color:#C8EDB8;background:#F3FBEF}
+.num{font-family:Bahnschrift,Consolas,monospace}
+/* 产物副本：作为对照页预加载 iframe（display:none）时，入场动画会卡在起始帧导致内容半透明，故禁用 */
+.page.on,.tcard{animation:none!important}
+</style>
+</head>
+<body>
+<div id="viewport">
+<svg id="bg-wave" viewBox="0 0 1920 260" preserveAspectRatio="none">
+<defs><linearGradient id="mgWaveG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1677FF" stop-opacity=".20"/><stop offset="100%" stop-color="#1677FF" stop-opacity="0"/></linearGradient></defs>
+<path d="M0 130 C 320 62, 640 192, 960 124 S 1600 58, 1920 120 L1920 260 L0 260Z" fill="url(#mgWaveG)"/>
+<path d="M0 178 C 380 118, 700 214, 1080 160 S 1650 112, 1920 170" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2"/>
+</svg>
+<div id="stage">
+  <header>
+    <div class="logo">赣</div>
+    <div>
+      <h1>建设任务与数据口径</h1>
+      <div class="en">TASKS · TIMELINE · DATA DEFINITIONS</div>
+    </div>
+    <div class="tabs">
+      <button class="on" data-page="tasks">建设任务与时限</button>
+      <button data-page="status">数据口径与状态</button>
+    </div>
+    <a class="home" href="index.html">返回驾驶舱 →</a>
+    <div class="clock"><b id="clock">--:--:--</b><span id="today"></span></div>
+  </header>
+
+  <main>
+    <!-- 任务与时限 -->
+    <section class="page on" id="page-tasks">
+      <div class="kpis" id="taskKpis"></div>
+      <div class="lanes" id="lanes"></div>
+    </section>
+
+    <!-- 口径与状态 -->
+    <section class="page" id="page-status">
+      <div class="grid4">
+        <div class="panel">
+          <div class="panel-title">数据来源与口径</div>
+          <div class="note">
+            <b>清单态（应建）</b>：附件2《数据共享责任清单》六库 134 条目录（人口 56 / 法人 42 / 信用 13 / 地理 20 / 婚姻 2 / 死亡 1）；盖章件为扫描件，明细尚未结构化。<br>
+            <b>台账态（执行）</b>：以大屏HTML挂接版内嵌数据为唯一真实来源，快照 <b>2026-11-16</b>；仅人口基础库有接入台账——目录 71 条、源表 49 张（明细 45）、字段 1,023 项（明细 896）、数据量明细 433,120,247 条（另有用户确认的汇总展示值 434,000,000 条，主展示取明细精确值）、供数单位 12 家（应供数 19 家）。<br>
+            <b>双口径原则</b>：清单态与台账态独立并列、不强行调平；其余五库执行态为空值，明细待导入，未知不作 0、不作估算。<br>
+            <b>治理规则</b>：117 条已登记（基础 100 / 业务 17 / 参考 0），7 家单位；规则已登记不等于已执行，未提供质量通过率。<br>
+            <b>服务与场景（两套口径）</b>：平台既有数据服务订阅 746 次；TOP5 接口精确调用合计 125,740,861 次（部分明细，原图累计调用为四舍五入展示值、精确总数未提供）；8 个规划中应用场景（人口库 3 个，其余五库各 1 个）均未发布、无调用日志。两者独立统计，不合并、不互相推算。
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">三种时间语义</div>
+          <div class="dgrid" style="margin-top:14px">
+            <div><span>数据快照时间</span><b>2026-11-16</b></div>
+            <div><span>页面读取时间</span><b id="readTime">--:--</b></div>
+            <div><span>系统时钟</span><b id="clock2">--:--:--</b></div>
+            <div><span>自动刷新</span><b>60 秒 / 手动</b></div>
+          </div>
+          <div class="note">三者不得混用：快照是台账口径，读取时间是本次请求，系统时钟仅用于展示。</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">状态语义字典</div>
+          <div class="dict" id="statusDict"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">刷新与异常处理</div>
+          <div class="mlist">
+            <div class="it"><span class="idx">01</span><div><b>加载中</b><small>骨架屏 + 扫描光效，禁用下钻</small></div><span class="badge info">加载</span></div>
+            <div class="it"><span class="idx">02</span><div><b>无台账数据</b><small>保留清单指标，接入类显示待补充</small></div><span class="badge bad">待补充</span></div>
+            <div class="it"><span class="idx">03</span><div><b>刷新失败</b><small>保留上次成功数据，顶部提示并允许重试</small></div><span class="badge warn">异常</span></div>
+            <div class="it"><span class="idx">04</span><div><b>搜索无结果</b><small>空状态 + 清除筛选</small></div><span class="badge plan">空态</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function scaleStage(){
+  const s=Math.min(innerWidth/1920,innerHeight/1080);
+  $('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize',scaleStage);scaleStage();
+
+const TASKS=[
+  [1,'提出应用场景','省有关单位、各设区市、赣江新区','2026年11月'],
+  [2,'梳理数据需求，编制数据共享责任清单','省政府办公厅等 6 家','2026年11月'],
+  [3,'认领数据清单','省有关单位','2026年11月'],
+  [4,'制定数据规范','建库牵头单位','2026年11月'],
+  [5,'开发数据治理工具','省政府办公厅','2026年11月'],
+  [6,'数据归集治理','省有关单位','2026年11月'],
+  [7,'数据挂接','省有关单位','2026年11月'],
+  [8,'数据订阅','建库牵头单位','2026年11月'],
+  [9,'融合治理','建库牵头单位','2026年12月'],
+  [10,'数据编目','建库牵头单位','2027年1月'],
+  [11,'服务发布','建库牵头单位','2027年1月'],
+  [12,'共享审核','建库牵头单位','2027年1月'],
+  [13,'常态化建设','建库牵头单位','持续推进'],
+  [14,'市级建设','各设区市','持续推进'],
+  [15,'加强监督考核','省政府办公厅','持续推进']
+].map(t=>({no:t[0],name:t[1],unit:t[2],due:t[3]}));
+
+const LANES=[
+  {name:'2026 年 11 月',sub:'需求与清单 · 归集挂接',color:'var(--cyan)',goal:'形成六库 134 条责任清单，完成需求认领、规范制定与首批数据归集挂接。',due:'2026年11月'},
+  {name:'2026 年 12 月',sub:'融合治理',color:'var(--blue)',goal:'完成多源数据融合治理，形成质量问题清单并反馈整改。',due:'2026年12月'},
+  {name:'2027 年 1 月',sub:'编目 · 发布 · 审核',color:'var(--violet)',goal:'完成数据编目、服务发布与共享审核，实现基础库专题库集中管理。',due:'2027年1月'},
+  {name:'持续推进',sub:'常态化 · 市级 · 考核',color:'var(--slate)',goal:'建立常态化更新、省市两级建设与监督考核机制，形成良性循环。',due:'持续推进'}
+];
+
+function daysTo(iso){
+  const now=new Date();const t=new Date(iso+'T23:59:59');
+  return Math.max(0,Math.ceil((t-now)/86400000));
+}
+const NODES=[['2026-11-30','2026 年 11 月节点','8 项重点任务 · 清单编制与资源库建设'],['2026-12-31','2026 年 12 月节点','1 项 · 融合治理'],['2027-01-31','2027 年 1 月节点','3 项 · 编目 / 发布 / 审核']];
+$('#taskKpis').innerHTML=NODES.map(([d,l,s],i)=>`<div class="kpi ${i===0?'hero':''}">
+  <div class="k-label">距 ${d} 节点</div><div class="k-val"><b class="num">${daysTo(d)}</b><span>天</span></div><div class="k-sub">${s}</div></div>`).join('')
+  +`<div class="kpi"><div class="k-label">持续推进</div><div class="k-val"><b class="num">3</b><span>项</span></div><div class="k-sub">常态化 / 市级 / 监督考核</div></div>`;
+
+$('#lanes').innerHTML=LANES.map(l=>`<div class="lane">
+  <div class="lane-h"><div style="display:flex;justify-content:space-between;align-items:center"><b style="color:${l.color}">${l.name}</b><span class="num" style="color:var(--dim)">${TASKS.filter(t=>t.due===l.due).length}</span></div><div class="sub">${l.sub}</div></div>
+  <div class="lane-body">
+    ${TASKS.filter(t=>t.due===l.due).map(t=>`<div class="tcard">
+      <div style="display:flex;gap:7px;align-items:baseline"><span class="no">${String(t.no).padStart(2,'0')}</span><b>${t.name}</b></div>
+      <div class="unit">${t.unit}</div>
+      <div style="margin-top:6px"><span class="badge info">${t.due}</span></div>
+    </div>`).join('')}
+  </div>
+  <div class="lane-f"><b>阶段目标：</b>${l.goal}</div>
+</div>`).join('');
+
+$('#statusDict').innerHTML=[
+  ['已接入','ok','数据已入台账并可用'],
+  ['待接入','warn','目录已确认，源表未接入'],
+  ['待核实','warn','元数据不一致，待确认'],
+  ['待确认','warn','参考规则/参考值'],
+  ['规划中','plan','场景未立项或未发布'],
+  ['待补充','bad','应提供但台账缺失'],
+  ['真实为零','info','确认无且统计为 0']
+].map(([n,c,d])=>`<div><span class="badge ${c}">${n}</span><span class="d">${d}</span></div>`).join('');
+
+function tick(){
+  const d=new Date();
+  const hh=String(d.getHours()).padStart(2,'0'),mm=String(d.getMinutes()).padStart(2,'0'),ss=String(d.getSeconds()).padStart(2,'0');
+  $('#clock').textContent=`${hh}:${mm}:${ss}`;
+  $('#clock2').textContent=`${hh}:${mm}:${ss}`;
+  $('#readTime').textContent=`${hh}:${mm}`;
+  const wk=['日','一','二','三','四','五','六'][d.getDay()];
+  $('#today').textContent=`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} 星期${wk}`;
+}
+tick();setInterval(tick,1000);
+
+$$('.tabs button').forEach(b=>b.onclick=()=>{
+  $$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  $$('.page').forEach(p=>p.classList.toggle('on',p.id==='page-'+b.dataset.page));
+});
+const q=new URLSearchParams(location.search).get('page');
+if(q==='status'||q==='tasks'){const b=$(`.tabs button[data-page="${q}"]`);b&&b.click();}
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>基础库 · 专题库数据资源驾驶舱 · 原型与 PRD 对照</title>
+<!--
+  N4 r2 界面修订（去说明性文字 / 三栏 Arco 风格）
+  原型侧：04-prototype/index.html（build-2.4.4，已加 hash 导航）
+  PRD 侧：03-prd.md v1.8.0（按模块组织 PRD 全文，§5 五工作表模板与写入规则重写 + §5.1 抽屉两 Tab + §6 错误提示规则 v1.8.0 全表 + §7 v1.8.0 展示映射修订注）/ PRD-基础库专题库数据地图.md §19 增补 + §21–§30 变更记录 + 功能清单 F-008–F-050
+  规则侧：project-spec.md R-01–R-13（与 verify-rules.js 一一对应；v1.6.0：总览驾驶舱展示入口移除，PAGES 9 页；v1.7.0–v1.7.6：模板与导入链路演进（字段明细 sheet→英文类型→9 列→全要素必填→表头级校验→14 列对齐原型→通用版三工作表）；v1.8.0 r20 大迭代：确立「所有数据来源都是数据表的导入」——模板重构为五工作表通用版（数据接入 8 列全必填 / 数据治理 6 列全必填规则细化到字段 / 治理成果与场景服务各 4 列全局一行 / 字段明细），统一三行结构、示例统一信用库；数据接入页移除字段结构预览/数据量构成、目录 20 条分页、抽屉两 Tab；治理页新增字段级规则（导入）区块；填报值替换、未填保持快照；R-13 为 N4 r11 新增、r12–r20 修订）
+  联动：同源(http)直调 iframe.contentWindow.setPage + 元素悬停高亮；file:// 降级为 iframe src 导航
+-->
+<style>
+:root{
+  --primary:#165dff;--primary-dark:#0e42d2;--text:#1d2129;--muted:#4e5969;
+  --border:#e5e6eb;--bg:#f7f8fa;--success:#00b42a;--warning:#ff7d00;--danger:#f53f3f;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;color:var(--text);background:var(--bg);
+  font:13px/1.6 "PingFang SC","Microsoft YaHei",system-ui}
+button{font-family:inherit}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* ---------- 两栏：左原型 + 右 PRD 并排（无独立标题栏 / 无独立导航） ---------- */
+.body{flex:1;display:flex;min-height:0}
+.stage{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+/* iframe 100% 铺满舞台容器：不做任何等比缩小、不加外框、不加灰底、不加顶部 padding，
+   原型完全按自身 scaleStage() 与 #viewport 居中机制渲染（等同独立打开 index.html）。
+   顶栏裁切的根因是 iframe src 带 #page-overview 锚点触发 #stage 滚动（实测 scrollTop=22），
+   已通过「去掉 hash + 注入 #stage{overflow:clip}」根治，无需任何布局补丁。 */
+.viewport{flex:1;overflow:hidden;background:#EAF3FF;padding:0;position:relative}
+.framewrap{position:absolute;inset:0;background:transparent;overflow:hidden}
+.framewrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ---------- 右侧 PRD 面板 ---------- */
+.prd{flex:0 0 400px;width:400px;border-left:1px solid var(--border);background:#fff;display:flex;flex-direction:column;min-height:0}
+.app.prd-off .prd{display:none}
+.prd-head{padding:12px 16px 10px;border-bottom:1px solid var(--border)}
+.prd-head .line1{display:flex;align-items:center;gap:8px}
+.prd-head h3{margin:0;font-size:15px}
+.prd-id{font:600 11px/18px Inter,system-ui;background:#e8f3ff;color:var(--primary);padding:0 7px;border-radius:5px}
+.prd-head .line2{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;line-height:18px;
+  background:#f2f3f5;color:var(--muted)}
+.chip.blue{background:#e8f3ff;color:var(--primary)}
+.prd-body{flex:1;overflow:auto;padding:14px 16px 28px}
+.prd-sec{margin-bottom:16px}
+.prd-sec h4{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--primary);
+  border-left:3px solid var(--primary);padding-left:7px;line-height:1.4}
+.prd-sec p{margin:0;font-size:12px;color:var(--muted)}
+.prd-sec ul{margin:0;padding-left:16px}
+.prd-sec li{font-size:12px;color:var(--muted);margin:3px 0}
+.prd-sec table{width:100%;border-collapse:collapse;font-size:11px}
+.prd-sec th,.prd-sec td{border:1px solid var(--border);padding:5px 7px;text-align:left;vertical-align:top}
+.prd-sec th{background:var(--bg);color:var(--muted);font-weight:600}
+.prd-sec code{font:11px/1.5 Consolas,monospace;color:var(--primary)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips .chip.f{background:#e8f3ff;color:var(--primary)}
+.chips .chip.r{background:#fff7e8;color:#d25f00}
+.kv{display:grid;grid-template-columns:64px 1fr;gap:6px 10px;font-size:12px}
+.kv dt{color:#86909c}
+.kv dd{margin:0;color:var(--text)}
+.map-row{cursor:pointer}
+.map-row:hover td{background:#f2f7ff}
+.map-row.on td{background:#e8f3ff}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;line-height:18px}
+.tag.green{background:#e8ffea;color:#009a29}
+.tag.orange{background:#fff7e8;color:#d25f00}
+.tag.gray{background:#f2f3f5;color:#86909c}
+.prd-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:11px;color:#86909c}
+.prd-note b{color:var(--text)}
+.prd-foot{padding:8px 16px;border-top:1px solid var(--border);font-size:11px;color:#a9aeb8;display:flex;gap:10px;align-items:center}
+.prd-foot .spacer{flex:1}
+.prd-foot a{color:var(--primary);text-decoration:none;cursor:pointer}
+.prd-foot a:hover{text-decoration:underline}
+/* 展开 PRD：仅在 PRD 收起态出现，位于原型顶栏下方图例区右端（不遮挡顶栏时钟 / 巡播 / 全屏控件）。
+   收起 PRD：置于右侧 PRD 面板头部，PRD 可见时才出现；两个按钮各司其职、位置不随文字切换。 */
+.prd-toggle{position:absolute;top:72px;right:5%;z-index:25;
+  border:1px solid rgba(22,119,255,.35);background:rgba(255,255,255,.94);
+  color:var(--primary);border-radius:6px;height:26px;padding:0 11px;
+  font-size:11px;font-weight:600;cursor:pointer;
+  box-shadow:0 2px 8px rgba(22,119,255,.14)}
+.prd-toggle:hover{background:#e8f3ff;border-color:var(--primary)}
+.app:not(.prd-off) .prd-toggle{display:none}
+.prd-fold{margin-left:auto;flex:none;border:1px solid rgba(22,119,255,.35);background:#fff;
+  color:var(--primary);border-radius:6px;height:24px;padding:0 10px;
+  font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.prd-fold:hover{background:#e8f3ff;border-color:var(--primary)}
+.global-ref{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
+.global-ref summary{font-size:12px;color:var(--primary);font-weight:600;cursor:pointer;list-style:none}
+.global-ref summary::-webkit-details-marker{display:none}
+.global-ref summary::before{content:"▸";margin-right:6px;font-size:10px}
+.global-ref[open] summary::before{content:"▾"}
+.global-ref .gr-body{padding-top:10px}
+.global-ref h5{margin:12px 0 6px;font-size:11px;color:#86909c;font-weight:600}
+.global-ref table{width:100%;border-collapse:collapse;font-size:11px}
+.global-ref th,.global-ref td{border:1px solid var(--border);padding:5px 7px;text-align:left;vertical-align:top}
+.global-ref th{background:var(--bg);color:var(--muted);font-weight:600}
+.global-ref ul{margin:0;padding-left:16px}
+.global-ref li{font-size:11px;color:var(--muted);margin:3px 0}
+
+/* 联动高亮（原型内部注入） */
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(22,93,255,.35)}70%{box-shadow:0 0 0 6px rgba(22,93,255,0)}100%{box-shadow:0 0 0 0 rgba(22,93,255,0)}}
+.hl{outline:2px solid var(--primary);outline-offset:2px;border-radius:8px;animation:pulse 1.2s 2}
+@media (max-width:1440px){.prd{flex-basis:360px;width:360px}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="body">
+    <section class="stage">
+      <button class="prd-toggle" id="prdToggle">展开 PRD</button>
+      <div class="viewport" id="viewport">
+        <div class="framewrap" id="framewrap">
+          <iframe id="frame" src="index.html" allowfullscreen></iframe>
+          <iframe id="frameTasks" src="management.html?page=tasks" style="display:none" allowfullscreen></iframe>
+          <iframe id="frameStatus" src="management.html?page=status" style="display:none" allowfullscreen></iframe>
+        </div>
+      </div>
+    </section>
+    <aside class="prd" id="prd">
+      <div class="prd-head" id="prdHead"></div>
+      <div class="prd-body" id="prdBody"></div>
+      <div class="prd-foot">
+        <span>PRD v1.8.0</span><span class="spacer"></span>
+        <a data-i="8">建设任务</a><a data-i="9">数据口径</a>
+        <span>build-2.4.16</span>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/* ================= 数据：页面 × PRD（源自 03-prd.md v1.7.5 模块级 PRD（含 §5.4 全要素必填与展示映射、表头级全要素、模板 14 列口径）+ 功能清单 F-xxx + R-xx） ================= */
+const PAGES=[
+{key:'P2',nav:'库资源门户',name:'库资源门户',id:'page-libraries',src:'index.html#page-libraries',prd:'PRD §7.1',
+ crumb:'<b>库资源门户</b>',fp:'F×4',
+ scene:'按蓝（基础库）/ 橙（专题库）分组浏览六库入口，从入口卡识别库名、类型、牵头单位、规模、状态与右上角库元素图标，点击进入库详情（P3–P7）。',
+ funcs:['F-008 「库资源门户」命名与蓝/橙分组：基础库 4 卡 / 专题库 2 卡各跨 2 列','F-009 入口卡识别信息 + 3D 透视与悬停视差','F-010 无台账库不展示虚构数据，空态语义保留','F-048 六库卡右上角虚线环内嵌库元素图标（人物/建筑/盾牌勾/定位针/双环/证明文件，v1.5.1）'],
+ rules:['R-02','R-13'],
+ input:'六库静态元数据（库名 / 类型 / 牵头单位 / 规模 / 状态）+ LIB_ICONS 六库 SVG 视觉常量',
+ output:'6 张入口卡（蓝组基础库 4 张、橙组专题库 2 张，专题库各跨 2 列）+ 每卡右上角库元素图标',
+ exception:'无台账的库不虚构数据，状态徽章保留「待补充」语义（R-02）；图标映射缺失时仅图标位留空，不影响卡片其他信息',
+ accept:['6 卡分组与跨列布局正确','点击入口卡进入对应库页（data-goto）','悬停视差不破坏布局','v1.6.0：总览驾驶舱入口移除，本页为系统默认页（导航首项 + 默认选中）','v1.5.0：六库情况实时（应建数随清单年度修订 / 明细数随导入即时刷新 + 快照重挂接）','v1.5.1：六库各有一个库元素图标嵌于 64px 虚线环内，颜色继承库色，不与标题重叠/溢出（F-048 / R-13）'],
+ mod:{src:'六库静态元数据（库名 / 类型 / 牵头单位 / 范围）+ 清单态应建 134 条（附件2 责任清单）+ 台账态明细（人口库 71 条 + 用户导入）；图标为 LIB_ICONS 静态视觉元素，不取业务数据',
+   stat:'应建数按责任清单（56/42/13/20/2/1）分库；明细数按 lib 过滤台账实时计数；双口径并列不调平（R-01）；图标按库 key 一一映射，不参与任何统计计数',
+   upd:'明细数实时：Excel 导入写入内存台账后即时重渲染（+ 快照重挂接）；应建数随责任清单年度修订；图标随原型版本发布更新、与数据刷新无关；无台账库不虚构频率与数值'},
+ map:[['面包屑','#crumb','PRD §7.1：页面命名「库资源门户」（原「六库入口」）'],['库卡元素图标','.libcard .libicon','PRD v1.5.1 §3：六库元素图标（F-048 / R-13）'],['模块 PRD 全文','—','03-prd.md §3：库资源门户实时六库情况 + 图标六要素']]},
+
+{key:'P3',nav:'人口库总览',name:'人口基础库 · 数据总览',id:'page-population',src:'index.html#page-population',prd:'PRD §7.2',
+ crumb:'库资源门户 <i>/</i> 人口基础库 <i>/</i> <b>数据总览</b>',fp:'F×2',
+ scene:'进入人口基础库，查看规模、字段、源表、接入与治理概览指标，并浏览四模块入口与摘要。',
+ funcs:['F-011 人口库 6 指标 + 四模块入口与摘要','F-012 「登记/规划」与「已执行/已接入」状态区分'],
+ rules:['R-07','R-10'],
+ input:'人口库台账明细（快照 2026-11-16）',
+ output:'6 指标卡 + 四模块（数据接入 / 数据治理 / 治理成果 / 场景服务）入口摘要',
+ exception:'未接入 / 未执行的执行态为空值，显示「—」或「待补充」，不得填 0 或推算（R-02）',
+ accept:['「已执行」类指标恒为「—」，不得为数字（R-07）','字段 1,023 项（明细 896 / 需求 982）口径一致（R-10）','v1.5.0：6 指标逐项标注数据来源，暂无数据字段页面留空/「—」，PRD 逐项说明空值处理'],
+ mod:{src:'人口库台账快照 2026-11-16：接入数据量取目录明细实测求和；供数单位按数源名称去重；字段为汇总值 1,023（明细 896 / 需求 982）；规则 117（基础 100 + 业务 17）；订阅 746 与 TOP5 调用 125,740,861 来自既有数据服务台账',
+   stat:'主展示精确到个位（R-03）；已接入量排除历史 225,810 与重复 739,554；登记≠执行（R-07）；TOP5 为部分明细不反推总量（R-04）',
+   upd:'6 指标随台账每日刷新（依据已接入 45 条中 10 条每日源表）；订阅 / 调用日志周期未提供 → 随快照重挂接、不虚构频率；快照模式下全部随重挂接同步'},
+ map:[['库内页签','#libTabs','PRD §7.2：库内模块页签'],['指标卡区','.kpi','PRD §8.1：状态区分展示'],['模块 PRD 全文','—','03-prd.md §4：数据总览六指标来源/规则/空值处理']]},
+
+{key:'P4',nav:'数据接入',name:'人口基础库 · 数据接入',id:'page-access',src:'index.html#page-access',prd:'PRD §7.3 / §19.3 / v1.8.0 §5–§5.4',
+ crumb:'库资源门户 <i>/</i> 人口基础库 <i>/</i> <b>数据接入</b>',fp:'F×10',
+ scene:'核对 12 家供数单位的目录、源表、数据量与字段汇总；按单位查找或目录搜索定位目录，打开详情抽屉核对字段与溯源（v1.8.0：抽屉改两 Tab——目录信息 / 已接入字段，物理表/源表、治理表与数据表 Tab 移除；字段结构预览与数据量构成模块移除；目录每页 20 条、超过分页）；通过「下载导入模板 / Excel 导入」弹窗按**五工作表通用版模板**补录各库台账（确立原则「所有数据来源都是数据表的导入」：数据接入 8 列全必填驱动 P2/P3、数据治理 6 列全必填规则细化到字段驱动 P5 字段级规则、治理成果/场景服务各 4 列全局一行驱动 P6/P7、字段明细合并已接入字段；统一三行结构——第 1 行说明行、第 2 行表头、第 3 行起数据；示例数据统一信用库；填报值替换、未填保持快照）；「查询全部已接入数据」弹窗跨单位/目录检索全量数据表（口径不变）。',
+ funcs:['F-013 按供数单位汇总目录/源表/数据量/字段（导入新供数单位动态卡片「含导入 N」）','F-014 单位查找 + 目录搜索（目录名/物理表/别名/字段）+ 状态筛选','F-015 目录列表分页与每页条数（v1.8.0：目录每页 20 条、超过分页，单位切换重置第 1 页）','F-016 详情抽屉两 Tab（v1.8.0：目录信息 / 已接入字段 N；物理表/源表行、治理表行与数据表 Tab 移除）+ 溯源（原材料工作表与行号）','F-017 无数据单位「待补充」空态','F-046 下载导入模板弹窗：**五工作表通用版模板（v1.8.0 重构）**——「数据接入」8 列全部必填（单位*/覆盖范围*/库名称*/库类型*/库接入数据量*/应建目录数*/库数据字段数*/库接入源表数*，六库一类一行 21 行预填）+「数据治理」6 列全部必填（规则编号*/库名称*/库类型*/目标表*/字段*/规则描述*，规则细化到字段）+「治理成果」4 列全局一行 +「场景服务」4 列全局一行 +「字段明细」6 列（前 5 必填，字段类型英文 varchar/int/decimal/date/datetime）；统一三行结构（第 1 行说明行逐列含义+格式+必填 / 第 2 行表头 / 第 3 行起数据）；示例数据统一社会信用基础库（示例）；示例行（任一单元格含「示例」）导入自动跳过；确立原则：所有数据来源都是数据表的导入','F-047 Excel 导入弹窗交互（v1.8.0 全量重写）：居中弹窗（遮罩 / Escape / 焦点约束）→ 目标库 + 文件（仅 .xlsx，CSV 不再支持）→ 五 sheet 按 sheet 名定位解析（S(name)、列名去 * 映射）→ 表头级校验（rows[1] 表头，8/6/4/4/5 列缺列文件级阻止并提示缺失列）→ 行级校验（数据接入 8 列逐项必填 + 数值列数字校验 + 库名称须为六库之一；数据治理 6 列逐项必填；成果/场景全局一行只取首数据行；字段行所属目录须在 LEDGER_CATS 或 DIRS 任一范围登记）→ 示例行统一跳过 → 确认导入：数据接入按库名称写 IMP_LIB_SUM（P2 库卡应建目录数 / P3 接入数据量·应建目录数·数据字段数·源表数 per-key 替换）、数据治理逐条写 IMP_GOV_RULES（P5 字段级规则区块即时展示）、成果/场景写 IMP_ACH/IMP_SCENE（P6/P7 四 KPI 替换）、字段明细去重合并写 items → **展示口径=填报值替换、未填保持快照**（供数单位/治理规则总数/订阅/TOP5/规则台账/场景列表等保持快照）→ 导入后分段回执（接入 N 库 / 治理规则 M 条 / 成果 / 场景 / 字段登记 P 条 / 跳过示例 K 行 / 异常明细）；导入仅内存态，刷新还原快照；错误提示规则见 03-prd.md §6','F-049 下钻与全量查询（v1.8.0）：目录详情两 Tab（目录信息含数据时间范围 / 已接入字段）；「≡ 查询全部已接入数据」弹窗按表名/所属目录/单位检索全量数据表（口径不变）','F-050 字段明细导入（v1.8.0 修订：通用版模板第 5 个工作表，三行结构、前 5 列必填，示例引用失信被执行人名单（示例））；导入按「所属目录+单位」关联台账目录（LEDGER_CATS）或快照目录（DIRS 全部库）任一范围，字段名称去重合并写入「已接入字段」；未在任一范围登记提示「所属目录未在平台登记」'],
+ rules:['R-01','R-02','R-10','R-12','R-13'],
+ input:'接入台账（19 家应供数 / 12 家实际供数，目录 71，源表 49，字段 1,023）+ 五工作表通用版导入模板文件（templates/导入模板-通用版.xlsx，v1.8.0：数据接入 8 列 / 数据治理 6 列 / 治理成果 4 列 / 场景服务 4 列 / 字段明细 6 列，统一三行结构，示例统一信用库）+ DATA_TABLES 派生表（仅目录台账派生，F-049 弹窗使用）',
+ output:'单位卡列 → 目录表（搜索/筛选/分页 20 条）→ 详情抽屉（两 Tab：目录信息（含数据时间范围）/ 已接入字段 + 溯源）→ 导入弹窗（五 sheet 解析预览 / 校验 / 确认 / 分段回执）→ 全量已接入数据弹窗（跨单位/目录检索）',
+ exception:'无数据单位显示「待补充」空态；搜索无结果显示空态提示；导入异常行标红不导入，示例行（任一单元格含「示例」）统一静默跳过；行级缺失逐项提示（数据接入 8 列「缺单位/缺覆盖范围/缺库名称/缺库类型/缺库接入数据量/缺应建目录数/缺库数据字段数/缺库接入源表数」；数据治理 6 列「缺规则编号/缺库名称/缺库类型/缺目标表/缺字段/缺规则描述」；字段「缺字段类型/缺字段长度/字段长度非数字/所属目录未在平台登记」）并阻止导入该行；文件级错误（扩展名 / zip 结构 / 缺「数据接入」sheet 或为空 / 任一 sheet 表头缺列——列出全部缺失列名并附修正建议，该 sheet 所有行不解析、按钮禁用）弹窗红字提示；空值导入后按「—」展示，均不得虚构（R-02）',
+ accept:['供数单位 12 家（应供 19，覆盖 63.2%）（R-08）；导入新供数单位按真实数据动态生成，不虚构','抽屉溯源可追溯至原材料工作表与行号','弹窗支持显式关闭 / 遮罩 / Escape / 焦点约束（F-042）','v1.8.0：五工作表通用版模板「数据接入 / 数据治理 / 治理成果 / 场景服务 / 字段明细」齐全，统一三行结构、示例统一信用库（R-12/R-13）','v1.8.0：数据接入 8 列全必填、数据治理 6 列全必填（规则细化到字段）、成果/场景全局一行；填报值替换、未填保持快照；分段回执含跳过示例 K 行','字段明细导入后目录「已接入字段」chips 实时增加（去重合并）；示例行自动跳过（F-050 / R-13）','v1.8.0：目录详情两 Tab（目录信息 / 已接入字段）；物理表/源表、治理表、数据表 Tab 不再展示；「查询全部已接入数据」弹窗口径不变（F-049 / R-13）','v1.8.0：字段结构预览与数据量构成模块移除；目录每页 20 条、超过分页（F-015 / R-13）','v1.8.0：数据治理导入规则逐条展示于治理页「字段级规则（导入）」区块，行点击抽屉详情（R-13）'],
+ mod:{src:'接入台账（19 家应供 / 12 家实供，目录 71、源表 49、字段 1,023，快照 2026-11-16）+ 用户导入的 .xlsx（v1.8.0 五工作表通用版：「数据接入」8 列全必填 → IMP_LIB_SUM 驱动 P2/P3；「数据治理」6 列全必填 → IMP_GOV_RULES 驱动 P5 字段级规则；「治理成果」「场景服务」各 4 列全局一行 → IMP_ACH/IMP_SCENE 驱动 P6/P7；「字段明细」6 列 → items 合并；统一三行结构，示例行统一跳过）+ DATA_TABLES（仅 DIRS 的 src/gov 派生表，代码 DT-xxxx，供 F-049 弹窗）',
+   stat:'按供数单位去重聚合；数据接入按库名称匹配六库写 IMP_LIB_SUM（键复用 libRecords/libCatalogs/libFields/libSrcTables，P2/P3 per-key 替换）；表头级校验（rows[1] 表头，8/6/4/4/5 列缺列文件级抛错并列出缺失列名）；示例行统一规则=任一单元格含「示例」整行跳过；数据治理逐条写 IMP_GOV_RULES；成果/场景全局一行写 IMP_ACH/IMP_SCENE；字段明细合并目标=LEDGER_CATS + DIRS 全部快照目录；展示口径=填报值替换（gv per-key fallback）、未填保持快照（未知≠0）；导入仅内存态，刷新还原快照',
+   upd:'接入台账最高频为每日 → 每日随源表刷新；派生表随快照重挂接；导入成功后 impCommit 即时刷新 renderUnits / renderAccess / renderGovRules / renderAch / renderSceneKpis 等视图；全量弹窗每次打开重读 DATA_TABLES；导入仅内存态，刷新还原快照'},
+ map:[['详情抽屉','#drawer','PRD §7.3 / v1.8.0 §5.1：目录详情两 Tab（目录信息 / 已接入字段），数据表 Tab 移除'],['导入入口','.tplbtn','N4 r9：F-046/F-047/F-050 数据接入 Excel 导入'],['导入弹窗','#modal','PRD v1.8.0 §19.3 / §5：弹窗交互 + 五 sheet 解析校验 + 分段回执'],['单位列表','#unitList','PRD §5：allUnits 合并快照+导入新供数单位，含导入标记'],['目录分页','#dirPager','PRD v1.8.0 §5：目录每页 20 条、超过分页'],['全量查询弹窗','#btnAllData','PRD v1.5.1 §5.1：查询全部已接入数据（F-049 / R-13）']]},
+
+{key:'P5',nav:'数据治理',name:'人口基础库 · 数据治理',id:'page-governance',src:'index.html#page-governance',prd:'PRD §7.4',
+ crumb:'库资源门户 <i>/</i> 人口基础库 <i>/</i> <b>数据治理</b>',fp:'F×4',
+ scene:'查看质量规则按单位的登记情况（已登记 / 参考待确认）与规则明细，切换「更新机制」视图核对各源表更新频率、约定时间与最后更新状态（v1.7.3：更新机制并入导入目录的完整要素并即时刷新计数）。',
+ funcs:['F-018 规则按单位汇总（已登记 / 参考待确认）+ 搜索分页','F-019 规则列表与详情（编号/目标表/检查字段/状态）+ **字段级规则（导入）区块（v1.8.0：导入的每字段规则逐条展示 规则编号/库名称/库类型/目标表/字段/规则描述/状态，行点击抽屉详情，导入即刷新；未导入时隐藏）**','F-020 更新机制视图：频率 / 约定时间 / 最后更新 / 状态（v1.7.3：renderGovUpdate 函数化，快照 2 条省医保局目录 + 导入目录合并展示，#upCnt 真实计数）','F-021 已登记 ≠ 已执行：已执行指标恒为「—」，不虚报'],
+ rules:['R-07','R-09'],
+ input:'规则台账 117 条（基础 100 + 业务 17）；源表更新台账 49 张（28 正常 / 2 延迟 / 19 未更新）+ 导入字段级规则（IMP_GOV_RULES，v1.8.0 数据治理 sheet：规则编号/库名称/库类型/目标表/字段/规则描述，6 列全必填）',
+ output:'规则 Tab（单位汇总 + 列表 + 详情）与更新机制 Tab（频率分布 + 57.1% 健康度）',
+ exception:'「已执行」为口径指标名但值恒为「—」；未更新源表按台账状态如实展示，不推算',
+ accept:['规则 117 = 基础 100 + 业务 17（R-07）','健康度 57.1% = 28/49 源表（R-09）','「已执行」不得出现数字值（R-07，verify-rules 断言）','v1.7.3：导入省医保局目录后更新机制表含导入目录（更新频率 / 最后更新日期 / 接入状态），#upCnt 由「2 条目录」真实增长；规则与成果统计仍为快照口径（R-05/R-07）'],
+ map:[['更新状态区','.stat4','PRD §7.4：更新机制四态统计'],['更新机制表','#updateBody','PRD v1.7.3 §5.4：renderGovUpdate 并入导入目录（快照口径 + 导入）']]},
+
+{key:'P6',nav:'治理成果',name:'人口基础库 · 治理成果',id:'page-achievement',src:'index.html#page-achievement',prd:'PRD §7.5',
+ crumb:'库资源门户 <i>/</i> 人口基础库 <i>/</i> <b>治理成果</b>',fp:'F×4',
+ scene:'查看 12 家填报单位的治理成果五项指标与填报合计核对，浏览单位贡献 TOP 条形图与成果归集链路。',
+ funcs:['F-022 五项成果指标：452 节点 / 7 文档 / 851 字段 / 45 结果表 / 12 家填报（v1.8.0：前四项可由「治理成果」sheet 全局一行填报值替换，涉及供数单位恒快照）','F-023 填报合计与平台台账核对一致；部分填报单位标注','F-024 成果缺失显示「待补充」/「—」，不推算','F-025 单位贡献 TOP 条形图 + 成果归集链路'],
+ rules:['R-02','R-05'],
+ input:'治理成果台账（12 家填报，部分单位为部分填报）+ 导入 IMP_ACH（v1.8.0「治理成果」sheet 4 列全局一行：流程节点数/治理字段次数/结果表数量/沉淀文档数）',
+ output:'五指标卡 + 填报核对块 + 贡献 TOP 条形图 + 归集链路图',
+ exception:'部分填报单位如实标注；缺失项显示「待补充」/「—」，不推算（R-02）',
+ accept:['五项指标与 R-05 逐项一致','填报合计与平台台账一致，部分填报有标注'],
+ map:[['指标卡区','.kpi','PRD §7.5：成果五指标']]},
+
+{key:'P7',nav:'场景服务',name:'人口基础库 · 场景服务',id:'page-scenes',src:'index.html#page-scenes',prd:'PRD §7.6',
+ crumb:'库资源门户 <i>/</i> 人口基础库 <i>/</i> <b>场景服务</b>',fp:'F×4',
+ scene:'查看既有数据服务 TOP5 精确调用量与调用结构占比，浏览 8 个规划中场景（人口库 3 个）分层列表，打开场景详情抽屉。',
+ funcs:['F-026 既有数据服务 TOP5 精确调用次数 + 「部分明细」标注（v1.8.0：TOP5 明细保持快照）','F-027 8 个规划中场景分层展示（规划中徽章），调用量/消耗显示「—」（v1.8.0：累计订阅/接口调用/服务接口数/规划场景数四 KPI 可由「场景服务」sheet 全局一行填报值替换，场景列表保持快照）','F-028 场景详情抽屉：名称 / 所属库 / 场景说明 / 状态','F-029 调用结构测算（TOP5 内部占比，不以总量为基准）'],
+ rules:['R-04','R-06'],
+ input:'服务调用台账（订阅 746 次；TOP5 合计 125,740,861 次）+ 8 个规划场景静态信息 + 导入 IMP_SCENE（v1.8.0「场景服务」sheet 4 列全局一行）',
+ output:'TOP5 榜单 + 占比结构 + 规划场景分层卡（badge plan）+ 场景详情抽屉',
+ exception:'规划场景调用量 / 消耗显示「—」；既有与规划两套口径独立统计，不混计、不互相推算（R-06）',
+ accept:['TOP5 合计 = 125,740,861，有「部分明细」标注（R-04）','8 个规划场景全部带「规划中」徽章（R-06）','占比测算以 TOP5 内部为基准'],
+ map:[['详情抽屉','#drawer','PRD §7.6：场景详情要素']]},
+
+{key:'P8',nav:'数据资源清单',name:'数据资源清单',id:'page-catalog',src:'index.html#page-catalog',prd:'PRD §7.7',
+ crumb:'<b>数据资源清单</b>',fp:'F×5',
+ scene:'在清单页对照「清单态 134 应建」与「台账态 71 明细」双口径；按库别分组（基础库组/专题库组）切换台账表，查看 3D 立体环统计并检索目录。',
+ funcs:['F-030 双口径并列：清单态 134 应建 + 台账态 71 明细，不调平','F-031 库别分组层叠卡（4+2），按钮加高 52px、面板内纵向均匀铺满','F-032 台账统计 3D 立体环（71 条按更新频率聚合 + 中心总数）','F-033 目录表搜索 / 频率筛选 / 分页（12 行/页）','F-034 目录抽屉：来源信息 + 已接入字段 chips'],
+ rules:['R-01'],
+ input:'清单态口径（134 应建）+ 台账态明细（71 条，人口库）',
+ output:'库别分组层叠卡（左侧纵向均匀铺满）+ 台账表（搜索/筛选/分页）+ 3D 环统计',
+ exception:'其余五库执行态为空值，「明细待导入」；双口径并列展示，不强行调平、不互相推算（R-01）',
+ accept:['134 与 71 同时可见、口径独立（R-01）','库别栏按钮不折行、纵向均匀分布（v2.4.1 二次修复）','抽屉含来源信息与字段 chips'],
+ map:[['库别分组卡','#catTabs','PRD §7.7：库别分组层叠'],['详情抽屉','#drawer','PRD §7.7：目录来源信息']]},
+
+{key:'P9',nav:'建设任务与时限',name:'建设任务与时限（管理侧）',id:null,mgmt:'management.html?page=tasks',prd:'PRD §7.8 延伸',
+ crumb:'管理侧 <i>/</i> <b>建设任务与时限</b>',fp:'F×2',
+ scene:'管理与巡检人员查看 15 项建设任务在 3 个阶段中的时间轴、责任单位与完成时限（任务时限以文件口径为准）。',
+ funcs:['F-035 15 项任务 × 3 阶段时间轴、责任单位、完成时限','F-036 不展示实际完成状态（任务时限以文件口径为准）'],
+ rules:['—'],
+ input:'建设任务文件口径（15 项任务、3 阶段）',
+ output:'任务时间轴视图（管理侧 management.html 「建设任务与时限」子页）',
+ exception:'不展示实际完成状态，避免与文件口径冲突',
+ accept:['15 项任务全部呈现且分 3 阶段','无实际完成率 / 完成状态字段'],
+ map:[['子页切换','.tabs','管理侧页签']]},
+
+{key:'P10',nav:'数据口径与状态',name:'数据口径与状态（管理侧）',id:null,mgmt:'management.html?page=status',prd:'PRD §7.8 延伸 / §8',
+ crumb:'管理侧 <i>/</i> <b>数据口径与状态</b>',fp:'F×1',
+ scene:'管理与巡检人员核对数据来源与口径（双口径原则）、三时间概念（数据快照 / 读取时间 / 系统时钟）与异常策略说明。',
+ funcs:['F-037 口径与状态页：来源 / 三时间 / 异常策略 / 刷新说明'],
+ rules:['R-02','R-03'],
+ input:'口径说明静态文案（快照 2026-11-16）',
+ output:'数据来源与口径说明块 + 三时间概念块 + 异常策略说明',
+ exception:'三时间不得混用：快照是台账口径，读取时间是本次请求，系统时钟仅用于展示',
+ accept:['双口径原则文案完整（清单态 / 台账态独立并列，未知不作 0）','三时间概念三者关系表述准确'],
+ map:[['子页切换','.tabs','管理侧页签'],['口径说明块','.note','PRD §8：口径与三时间']]}
+];
+
+/* 全站公共行为、五态口径、R-xx 总表不再作为独立「页」，统一置于右侧 PRD 底部折叠区块 */
+const GLOBAL_FUNCS=['F-038 页面进入读取元数据 + 手动刷新 + 60s 自动刷新','F-039 三时间概念展示：读取时间 / 数据快照 / 系统时钟','F-040 刷新失败提示可重试、有旧数据时保留并提示（Mock 边界 D-02）','F-041 加载 / 空数据 / 请求失败 / 数据缺项状态支持（C-01）','F-042 抽屉/弹层：显式关闭 / 遮罩关闭 / Escape / 焦点约束','F-043 全屏展示','F-044 窄屏纵向排列、数据表横向滚动（P1）','F-045 展陈巡播（可一键关闭）'];
+
+const RULES=[
+ {id:'R-01',text:'清单态 134 与台账态 71 并列、不调平',src:'PRD §7.7'},
+ {id:'R-02',text:'未知 ≠ 0：未填报显示 — / 待补充 / 待导入，不得推算',src:'PRD §7.5'},
+ {id:'R-03',text:'主展示数量精确到个位，不用万/亿/整十数',src:'PRD §8.1'},
+ {id:'R-04',text:'调用总数未提供 → 用 TOP5 精确合计 125,740,861，不反推 1.98 亿',src:'PRD §7.6'},
+ {id:'R-05',text:'治理成果 452/851/45/7，12 家填报',src:'PRD §7.5'},
+ {id:'R-06',text:'既有服务与 8 个规划中场景分层不混计（badge plan）',src:'PRD §7.6'},
+ {id:'R-07',text:'规则 117（基础 100 / 业务 17）；已登记 ≠ 已执行（已执行恒为 —）',src:'PRD §7.4'},
+ {id:'R-08',text:'供数单位 12 家（应供数 19 家，覆盖 63.2%）',src:'PRD §7.2'},
+ {id:'R-09',text:'源表 49 张（28/2/19），健康度 57.1% = 28/49',src:'PRD §7.2'},
+ {id:'R-10',text:'字段 1,023 项（明细 896 / 需求 982）',src:'PRD §7.2'},
+ {id:'R-11',text:'顶栏可见 build-X.Y.Z（build-2.4.16），与 PRD / state 一致',src:'N4 通过条件'},
+ {id:'R-12',text:'数据接入 Excel 导入（弹窗交互 + 导入后预览 + 错误提示规则）+ 五工作表通用版模板（v1.8.0：数据接入 8 列全必填 / 数据治理 6 列全必填规则细化到字段 / 治理成果与场景服务各 4 列全局一行 / 字段明细 6 列前 5 必填；统一三行结构——第 1 行说明行、第 2 行表头、第 3 行起数据；示例数据统一信用库；仅 .xlsx）',src:'N4 r9 新增 / r10 修订 / r12 单 sheet / r13 增字段明细 / r14 字段类型英文 / r15 去主要字段列 / r16 全要素必填 / r17 表头级全要素 / r18 模板 14 列对齐原型要素 / r19 通用版三工作表 / r20 五工作表通用版'},
+ {id:'R-13',text:'v1.8.0 r20：模块精简（accExtra 字段结构预览/数据量构成移除断言）+ 目录分页 20 条（DIR_PAGESZ/dirPage 断言）+ 抽屉两 Tab（dirTab(0)/(1)，dirTab(2) 不存在断言）+ 五工作表导入驱动（S(\'数据接入\') 等五 sheet 解析断言、IMP_GOV_RULES/IMP_ACH/IMP_SCENE 断言、P2/P3/P6/P7 per-key 替换）+ 模板 zip 解压断言（五 sheet 名序列 / 8/6/4/4/6 列带 * 表头 / B 列一类一行 row≥3 说明行不计 / 示例标记 / varchar·int·decimal·date·datetime 枚举）+ 库卡元素图标 + 查询全部已接入数据（F-048/F-049/F-050）',src:'N4 r11 新增 / r13–r19 历轮修订（全要素必填→表头级→14 列→通用版三工作表）/ r20 五工作表通用版 + 模块精简 + 字段级规则'},
+];
+const STATES=[
+ ['正常','normal','8 页全量渲染','真实','<span class="tag green">✓</span>'],
+ ['空态','empty','「明细待导入」空态 / 空单位 / 空规则表','真实','<span class="tag green">✓ 切库触发</span>'],
+ ['数据缺项','partial','「—」/「待补充」/「部分填报」，未知 ≠ 0','真实','<span class="tag green">✓</span>'],
+ ['加载','loading','300ms 淡入 + countUp 入场；无骨架屏','Mock','<span class="tag orange">△ A-02</span>'],
+ ['错误重试','error','刷新 = 重载内嵌数据，无网络层可失败','Mock','<span class="tag orange">△ A-02</span>'],
+ ['无权限 403','forbidden','不适用（无登录 / 权限体系）','豁免','<span class="tag gray">— PRD §12</span>'],
+];
+/* ================= 渲染 ================= */
+const $=s=>document.querySelector(s);
+const app=$('#app'),prdHead=$('#prdHead'),prdBody=$('#prdBody');
+const frame=$('#frame'),frameTasks=$('#frameTasks'),frameStatus=$('#frameStatus'),
+      wrap=$('#framewrap'),viewport=$('#viewport');
+const ALL_FRAMES=[frame,frameTasks,frameStatus];
+let curIdx=0,hlEls=[];
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function renderPrd(){
+  const p=PAGES[curIdx];
+  prdHead.innerHTML=`<div class="line1"><h3>${p.name}</h3><span class="prd-id">${p.key}</span>
+      <button class="prd-fold" id="prdFold">收起 PRD</button></div>
+    <div class="line2"><span class="chip">${p.prd}</span><span class="chip blue">${p.id?'大屏页面':'管理侧'}</span></div>`;
+
+  let h=`<div class="prd-sec"><h4>用户场景</h4><p>${p.scene}</p></div>`;
+  h+=`<div class="prd-sec"><h4>功能点</h4><ul>${p.funcs.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div class="chips" style="margin-top:8px">${p.funcs.map(f=>`<span class="chip f">${f.split(' ')[0]}</span>`).join('')}</div></div>`;
+  h+=`<div class="prd-sec"><h4>业务规则</h4><div class="chips">${p.rules.map(r=>`<span class="chip r">${r}</span>`).join('')}</div></div>`;
+  h+=`<div class="prd-sec"><h4>输入 / 输出</h4><dl class="kv"><dt>输入</dt><dd>${p.input}</dd><dt>输出</dt><dd>${p.output}</dd></dl></div>`;
+  h+=`<div class="prd-sec"><h4>异常与边界</h4><p>${p.exception}</p></div>`;
+  /* v1.5.1：每个模块独立 PRD 六要素（功能描述 / 展示内容 / 数据来源 / 统计规则 / 更新规则 / 异常与空值处理） */
+  h+=`<div class="prd-sec"><h4>模块说明（v1.5.1 · 六要素）</h4><dl class="kv">
+      <dt>功能描述</dt><dd>${p.scene}</dd>
+      <dt>展示内容</dt><dd>${p.output}</dd>
+      <dt>数据来源</dt><dd>${p.mod?p.mod.src:p.input}</dd>
+      <dt>统计规则 / 口径</dt><dd>${p.mod?p.mod.stat:('按业务规则 '+(p.rules||[]).join(' / ')+' 执行；双口径并列不调平（R-01）')}</dd>
+      <dt>更新规则及依据</dt><dd>${p.mod?p.mod.upd:'随 2026-11-16 快照重挂接同步；展示块更新频率取数据源中最高频目录（实时 > 每日 > 每月 > 每季 > 每年）'}</dd>
+      <dt>异常与空值处理</dt><dd>${p.exception}</dd></dl></div>`;
+  h+=`<div class="prd-sec"><h4>验收要点</h4><ul>${p.accept.map(a=>`<li>${a}</li>`).join('')}</ul></div>`;
+  if(p.map&&p.map.length){
+    h+=`<div class="prd-sec"><h4>元素映射</h4><table><tr><th>元素</th><th>选择器</th><th>PRD 要求</th></tr>
+      ${p.map.map(m=>`<tr class="map-row" data-sel="${esc(m[1])}"><td>${m[0]}</td><td><code>${esc(m[1])}</code></td><td>${m[2]}</td></tr>`).join('')}</table></div>`;
+  }
+  /* 全站公共行为 / 五态口径 / R-xx 总表：随每页常驻的折叠区块，不占导航 */
+  h+=`<details class="global-ref"><summary>全局口径参考（五态 · R-xx · 公共行为）</summary><div class="gr-body">
+      <h5>五态口径</h5><table><tr><th>状态</th><th>状态名</th><th>原型实现</th><th>口径</th><th>验收</th></tr>
+      ${STATES.map(s=>`<tr><td>${s[0]}</td><td><code>${s[1]}</code></td><td>${s[2]}</td><td>${s[3]}</td><td>${s[4]}</td></tr>`).join('')}</table>
+      <div class="prd-note" style="margin-top:8px"><b>Mock 边界</b>：单文件静态内嵌数据（A-01），无网络层。loading / error 两态的骨架屏与真实网络错误演示属 Mock 范畴。</div>
+      <h5>业务规则 R-01 – R-13</h5><table><tr><th>编号</th><th>规则</th><th>出处</th></tr>
+      ${RULES.map(r=>`<tr><td><span class="chip blue">${r.id}</span></td><td>${r.text}</td><td>${r.src}</td></tr>`).join('')}</table>
+      <h5>全站公共行为 F-038 – F-045</h5><ul>${GLOBAL_FUNCS.map(f=>`<li>${f}</li>`).join('')}</ul>
+    </div></details>`;
+  prdBody.innerHTML=h;
+  prdBody.scrollTop=0;
+  [...prdBody.querySelectorAll('.map-row')].forEach(tr=>{
+    tr.onmouseenter=()=>highlight(tr.dataset.sel,true);
+    tr.onmouseleave=()=>highlight(tr.dataset.sel,false);
+  });
+}
+/* 三路 iframe 全部预加载：切页只做显隐，不重复导航（消除竞态） */
+function activeFrame(){
+  const p=PAGES[curIdx];
+  if(p.mgmt)return p.mgmt.endsWith('page=status')?frameStatus:frameTasks;
+  return frame;
+}
+function highlight(sel,on){
+  clearHl();
+  if(!sel||on===false)return;
+  try{
+    const doc=activeFrame().contentDocument;
+    if(!doc||!doc.querySelectorAll)return;
+    doc.querySelectorAll(sel).forEach(el=>{el.classList.add('hl');hlEls.push(el);});
+  }catch(e){/* file:// 跨文档不可访问：静默降级 */}
+}
+function clearHl(){hlEls.forEach(el=>el.classList.remove('hl'));hlEls=[];}
+
+/* 三路 iframe 全预加载，切页只显隐；iframe 100% 铺满容器（纯 CSS，不做任何尺寸计算），
+   原型完全按自身 scaleStage() 与 #viewport 居中机制渲染，等同独立打开。
+   【根因】此前 iframe src 带 #page-overview，浏览器把锚点元素滚进视口，
+   令 #stage（overflow:hidden）产生 scrollTop≈22，顶栏上半部被裁掉、上方露出灰带。
+   修复 = ① iframe src 去掉 hash；② 注入 #stage{overflow:clip} 使其不可滚动。
+   不再注入任何 padding / 对齐 / 缩放原点 / scaleStage 补丁，也不改原型业务数据。 */
+function ensureNoScroll(f){
+  try{
+    const d=f.contentDocument, stage=d&&d.getElementById('stage');
+    if(!d||!d.head||!stage)return;
+    if(!d.getElementById('__protoNoScroll')){
+      const st=d.createElement('style');
+      st.id='__protoNoScroll';
+      /* clip 与 hidden 视觉一致但不可滚动，从根上杜绝锚点/焦点把顶栏滚出视口 */
+      st.textContent='#stage{overflow:hidden!important;overflow:clip!important}';
+      d.head.appendChild(st);
+    }
+    if(stage.scrollTop)stage.scrollTop=0;
+  }catch(e){/* file:// 跨文档不可访问：静默降级 */}
+}
+function fit(){
+  const show=activeFrame();
+  ALL_FRAMES.forEach(f=>f.style.display=(f===show?'block':'none'));
+  ensureNoScroll(frame); // 仅大屏原型有 #stage；管理侧两页保持自身布局
+  /* PRD 展开/收起会改变 iframe 宽度，主动让原型自己重算一次缩放（不改其逻辑），
+     避免虚拟时间 / 部分浏览器下 resize 事件未派发导致停留在上一状态的缩放值 */
+  try{
+    const w=frame.contentWindow;
+    if(w&&typeof w.scaleStage==='function')w.scaleStage();
+  }catch(e){/* file:// 降级 */}
+}
+
+/* ================= 切页联动 ================= */
+function goto(i){
+  clearHl();curIdx=i;renderPrd();
+  const p=PAGES[i];
+  if(p.mgmt){
+    // 管理侧两个子页均为预加载 iframe，切页仅需 fit() 显隐，不做任何导航
+  }else if(p.id){
+    let ok=false;
+    try{
+      const w=frame.contentWindow;
+      if(w&&typeof w.setPage==='function'&&w.document&&w.document.getElementById(p.id)){
+        if(typeof w.stopTour==='function')w.stopTour();
+        w.setPage(p.id);ok=true;
+      }
+    }catch(e){/* file:// */}
+    if(!ok)frame.src=p.src; // 降级：hash 导航（原型 init + hashchange 支持）
+  }
+  fit();
+}
+
+/* iframe 加载完成后重新适配 */
+ALL_FRAMES.forEach(f=>f.addEventListener('load',()=>{setTimeout(fit,80);}));
+
+/* 原型内导航 → 反向高亮顶部对应页签 */
+setInterval(()=>{
+  try{
+    const mg=!!PAGES[curIdx].mgmt;
+    const doc=activeFrame().contentDocument;
+    if(!doc||!doc.querySelector)return;
+    if(mg){
+      const mt=doc.querySelector('.tabs button.on');
+      if(mt&&mt.dataset.page){
+        const i=PAGES.findIndex(p=>p.mgmt&&p.mgmt.endsWith('page='+mt.dataset.page));
+        if(i>=0&&i!==curIdx){curIdx=i;renderPrd();fit();}
+      }
+      return;
+    }
+    const act=doc.querySelector('.page.active');
+    if(act){
+      const i=PAGES.findIndex(p=>p.id===act.id);
+      if(i>=0&&i!==curIdx){curIdx=i;renderPrd();fit();}
+    }
+  }catch(e){/* file:// 不可读：仅保留单向联动 */}
+},500);
+
+/* 收起 / 展开 PRD：两个按钮各司其职 ——
+   「收起 PRD」在右侧 PRD 面板头部（PRD 可见时），「展开 PRD」在原型顶栏下方图例区右端（PRD 隐藏时）；
+   管理侧入口为脚注链接 */
+document.addEventListener('click',e=>{
+  if(e.target.id==='prdToggle'||e.target.id==='prdFold'){
+    app.classList.toggle('prd-off');
+    setTimeout(fit,60);
+  }
+  const a=e.target.closest&&e.target.closest('.prd-foot a');
+  if(a)goto(+a.dataset.i);
+});
+addEventListener('resize',fit);
+
+/* 初始 */
+renderPrd();fit();
+</script>
+</body>
+</html>

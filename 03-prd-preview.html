@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>PRD 预览 · 江西省基础库·专题库数据资源驾驶舱</title>
+<style>
+:root{--cyan:#1677FF;--text:#1D2129;--muted:#4E5969;--dim:#86909C;--line:#E1EBF8}
+*{box-sizing:border-box}
+body{margin:0;background:#F5F8FD;color:var(--text);font:14px/1.7 "Microsoft YaHei","PingFang SC",sans-serif;padding:32px 40px}
+h1{font-size:22px;margin:0 0 4px;color:#0B4FD6}
+.sub{color:var(--dim);font-size:12px;margin-bottom:22px}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:26px}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;box-shadow:0 2px 0 #E6EFFC,0 10px 22px rgba(22,119,255,.13)}
+.card b{display:block;font-size:26px;color:var(--cyan);font-family:Bahnschrift,Consolas,monospace}
+.card span{font-size:12px;color:var(--dim)}
+h2{font-size:16px;margin:26px 0 10px;padding-left:10px;border-left:3px solid var(--cyan)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:13px}
+th{background:#EDF3FE;text-align:left;padding:8px 12px;font-weight:600;border-bottom:1px solid var(--line)}
+td{padding:7px 12px;border-bottom:1px solid #F0F4FA;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-block;padding:0 7px;border-radius:9px;font-size:11px;line-height:20px;color:#fff;background:var(--cyan)}
+.tag.p1{background:#FAAD14}
+.note{background:#FFF7E6;border:1px solid #FFE1A6;border-radius:6px;padding:10px 14px;font-size:12px;color:#8C6B1F;margin-top:22px}
+a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<h1>基础库 · 专题库数据地图 PRD（预览）</h1>
+<div class="sub">PRD v1.8.0 ↔ FA v2.4.3 ↔ 原型 build-2.4.16 ｜ 数据快照 2026-11-16（挂接版内嵌数据）｜ <b>按模块组织的 PRD 全文</b>见 <a href="03-prd.md">03-prd.md</a>，权威文档 §19 / §21–§30 同步增补｜v1.8.0 r20 大迭代：确立「所有数据来源都是数据表的导入」——模板重构为五工作表通用版（数据接入 8 列全必填 / 数据治理 6 列全必填规则细化到字段 / 治理成果与场景服务各 4 列全局一行 / 字段明细），统一三行结构（说明行/表头/数据行）、示例统一用信用库；数据接入页移除字段结构预览与数据量构成、目录 20 条分页、抽屉两 Tab；治理页新增字段级规则（导入）区块；填报值替换、未填保持快照</div>
+
+<div class="cards">
+  <div class="card"><b>10</b><span>页面（P1–P10；P1 入口移除仅存档）</span></div>
+  <div class="card"><b>43</b><span>功能点（F-008–F-050，编号不重排）</span></div>
+  <div class="card"><b>13</b><span>全局规则 R-01–R-13（校验 13/13）</span></div>
+  <div class="card"><b>7</b><span>五态状态（3 真实 / 2 Mock / 1 豁免）</span></div>
+  <div class="card"><b>74</b><span>DOM 回归断言（TOTAL FAIL: 0）</span></div>
+</div>
+
+<h2>功能清单（43 条 · 节选）</h2>
+<table>
+<thead><tr><th style="width:70px">编号</th><th style="width:60px">页面</th><th>功能点</th><th style="width:60px">优先级</th></tr></thead>
+<tbody>
+<tr><td>F-001–F-007</td><td>P1</td><td>（v1.6.0 移除）原总览驾驶舱 7 条——导航/TOUR/默认页入口已删，section 与口径存档保留</td><td><span class="tag p1">移除</span></td></tr>
+<tr><td>F-008</td><td>P2</td><td>库资源门户命名与蓝/橙分组（4+2 各跨 2 列）· 系统默认页</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-013</td><td>P4</td><td>按供数单位汇总 + 搜索筛选分页</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-021</td><td>P5</td><td>已登记≠已执行（已执行恒为「—」）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-022</td><td>P6</td><td>五项成果指标（452/7/851/45/12 家）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-027</td><td>P7</td><td>8 个规划中场景分层（规划中徽章，调用量「—」）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-030</td><td>P8</td><td>双口径并列 134/71 不调平 + 库别纵向铺满 + 3D 环</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-046</td><td>P4</td><td>导入模板下载弹窗（**v1.8.0 五工作表通用版**——「数据接入」8 列全必填（单位*/覆盖范围*/库名称*/库类型*/库接入数据量*/应建目录数*/库数据字段数*/库接入源表数*，六库一类一行 21 行预填）+「数据治理」6 列全必填（规则编号*/库名称*/库类型*/目标表*/字段*/规则描述*，规则细化到字段）+「治理成果」4 列全局一行 +「场景服务」4 列全局一行 +「字段明细」6 列前 5 必填；统一三行结构（第 1 行说明行含义+格式+必填 / 第 2 行表头 / 第 3 行起数据）；示例数据统一社会信用基础库（示例）；示例行自动跳过；确立原则：所有数据来源都是数据表的导入 / R-12 R-13）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-047</td><td>P4</td><td>Excel 导入弹窗（v1.8.0 全量重写）：仅 .xlsx（CSV 不再支持）→ 五 sheet 按 sheet 名定位解析（S(name)、列名去 * 映射）→ 表头级校验（rows[1] 表头，8/6/4/4/5 列缺列文件级阻止并提示缺失列）→ 行级校验（数据接入 8 列逐项必填+数值数字+库名称六库匹配；数据治理 6 列逐项必填；成果/场景全局一行；字段所属目录须在 LEDGER_CATS 或 DIRS 任一范围登记）→ 示例行统一跳过（任一单元格含「示例」）→ 确认导入：数据接入写 IMP_LIB_SUM（P2 应建目录数 / P3 接入数据量·应建目录数·数据字段数·源表数 per-key 替换）、数据治理写 IMP_GOV_RULES（P5 字段级规则区块即时展示）、成果/场景写 IMP_ACH/IMP_SCENE（P6/P7 四 KPI 替换）、字段明细合并 items → 填报值替换、未填保持快照；分段回执 / PRD §6）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-048</td><td>P2</td><td>六库卡右上角虚线环内嵌库元素图标（人物/建筑/盾牌/定位针/双环/文件，不参与统计）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-049</td><td>P4</td><td>数据接入下钻与全量查询：目录详情三 Tab（数据表 N）+ 目录信息「数据时间范围」+「查询全部已接入数据」弹窗（F-049 / PRD v1.6.0 §5.1 §5.2）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-050</td><td>P4</td><td>字段明细导入（v1.8.0：通用版模板第 5 个工作表，三行结构、前 5 列必填，示例引用失信被执行人名单（示例））：字段名称去重合并写入「已接入字段」，合并目标扩展为台账目录（LEDGER_CATS）+ 快照目录（DIRS 全部库），未在任一范围登记提示「所属目录未在平台登记」；字段类型英文 varchar/int/decimal/date/datetime / PRD §5.3）</td><td><span class="tag">P0</span></td></tr>
+<tr><td>F-041</td><td>全站</td><td>加载 / 空数据 / 请求失败 / 缺项状态（见五态口径）</td><td><span class="tag">P0</span></td></tr>
+<tr><td colspan="4" style="color:var(--dim)">……完整 43 条见 <b>03-prd-功能清单.md</b></td></tr>
+</tbody>
+</table>
+
+<h2>全局口径规则（R-xx）</h2>
+<table>
+<thead><tr><th style="width:70px">编号</th><th>规则</th><th style="width:110px">校验</th></tr></thead>
+<tbody>
+<tr><td>R-01</td><td>清单态 134 与台账态 71 并列、不调平</td><td>PASS</td></tr>
+<tr><td>R-02</td><td>未知≠0：未填报显示 — / 待补充 / 待导入</td><td>PASS</td></tr>
+<tr><td>R-03</td><td>主展示精确到个位，不用万/亿/整十数</td><td>PASS</td></tr>
+<tr><td>R-04</td><td>TOP5 精确合计 125,740,861，不反推总量</td><td>PASS</td></tr>
+<tr><td>R-05</td><td>治理成果 452/851/45/7，12 家填报</td><td>PASS</td></tr>
+<tr><td>R-06</td><td>既有服务与 8 个规划场景分层不混计</td><td>PASS</td></tr>
+<tr><td>R-07</td><td>规则 117；已登记≠已执行</td><td>PASS</td></tr>
+<tr><td>R-08</td><td>供数单位 12 家（应供数 19 家）</td><td>PASS</td></tr>
+<tr><td>R-09</td><td>源表 49 张（28/2/19），健康度 57.1%</td><td>PASS</td></tr>
+<tr><td>R-10</td><td>字段 1,023 项（明细 896 / 需求 982）</td><td>PASS</td></tr>
+<tr><td>R-11</td><td>顶栏 build 标识可见且版本一致（build-2.4.16 / PRD v1.8.0）</td><td>PASS</td></tr>
+<tr><td>R-12</td><td>数据接入 Excel 导入弹窗 + 导入后预览 + 错误提示规则 + 五工作表通用版模板（v1.8.0：数据接入 / 数据治理 / 治理成果 / 场景服务 / 字段明细，统一三行结构，示例统一信用库；仅 .xlsx）</td><td>PASS</td></tr>
+<tr><td>R-13</td><td>模块精简与字段级规则 + 五工作表导入驱动展示（F-048/F-049/F-050 / r20：accExtra 模块移除断言、DIR_PAGESZ 分页断言、抽屉两 Tab 断言、IMP_GOV_RULES/IMP_ACH/IMP_SCENE 断言、模板 zip 解压断言——五 sheet 名序列 / 8/6/4/4/6 列带 * 表头 / B 列一类一行（说明行不计）/ 示例标记 / 英文类型枚举）</td><td>PASS</td></tr>
+</tbody>
+</table>
+
+<div class="note">Mock 边界（D-02 / C-01）：loading / error 两态为静态内嵌数据下的 Mock 边界；403 无权限态豁免（无登录权限体系，PRD §12）。完整口径见 project-spec.md 五态表。</div>
+</body>
+</html>
