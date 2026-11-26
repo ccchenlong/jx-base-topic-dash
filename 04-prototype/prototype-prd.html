@@ -8,7 +8,7 @@
   N4 r2 界面修订（去说明性文字 / 三栏 Arco 风格）
   原型侧：04-prototype/index.html（build-2.4.4，已加 hash 导航）
   PRD 侧：03-prd.md v1.8.0（按模块组织 PRD 全文，§5 五工作表模板与写入规则重写 + §5.1 抽屉两 Tab + §6 错误提示规则 v1.8.0 全表 + §7 v1.8.0 展示映射修订注）/ PRD-基础库专题库数据地图.md §19 增补 + §21–§30 变更记录 + 功能清单 F-008–F-050
-  规则侧：project-spec.md R-01–R-13（与 verify-rules.js 一一对应；v1.6.0：总览驾驶舱展示入口移除，PAGES 9 页；v1.7.0–v1.7.6：模板与导入链路演进（字段明细 sheet→英文类型→9 列→全要素必填→表头级校验→14 列对齐原型→通用版三工作表）；v1.8.0 r20 大迭代：确立「所有数据来源都是数据表的导入」——模板重构为五工作表通用版（数据接入 8 列全必填 / 数据治理 6 列全必填规则细化到字段 / 治理成果与场景服务各 4 列全局一行 / 字段明细），统一三行结构、示例统一信用库；数据接入页移除字段结构预览/数据量构成、目录 20 条分页、抽屉两 Tab；治理页新增字段级规则（导入）区块；填报值替换、未填保持快照；R-13 为 N4 r11 新增、r12–r20 修订；v1.8.1 r21 用户指令五项：①明细区 data-caro 轮播（startCarousel/refreshCarousels，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮，空白区 2s 三连击浮出 #hiddenEntry）③治理页统计 4 卡置顶、「更新机制」Tab 与 renderGovUpdate 移除④成果页左侧板块丰富、单位填报列表恒空「文档 —」移除⑤场景服务并入治理成果页（P7 删除、PAGES 9→8、导航 5→4、「规划场景」展示移除）+ 模板四工作表（「治理成果」「场景服务」合并为「治理成果与场景服务」8 列全局一行））
+  规则侧：project-spec.md R-01–R-13（与 verify-rules.js 一一对应；v1.6.0：总览驾驶舱展示入口移除，PAGES 9 页；v1.7.0–v1.7.6：模板与导入链路演进（字段明细 sheet→英文类型→9 列→全要素必填→表头级校验→14 列对齐原型→通用版三工作表）；v1.8.0 r20 大迭代：确立「所有数据来源都是数据表的导入」——模板重构为五工作表通用版（数据接入 8 列全必填 / 数据治理 6 列全必填规则细化到字段 / 治理成果与场景服务各 4 列全局一行 / 字段明细），统一三行结构、示例统一信用库；数据接入页移除字段结构预览/数据量构成、目录 20 条分页、抽屉两 Tab；治理页新增字段级规则（导入）区块；填报值替换、未填保持快照；R-13 为 N4 r11 新增、r12–r20 修订；v1.8.1 r21 用户指令五项：①明细区 data-caro 轮播（startCarousel/refreshCarousels，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮，空白区 2s 三连击浮出 #hiddenEntry）③治理页统计 4 卡置顶、「更新机制」Tab 与 renderGovUpdate 移除④成果页左侧板块丰富、单位填报列表恒空「文档 —」移除⑤场景服务并入治理成果页（P7 删除、PAGES 9→8、导航 5→4、「规划场景」展示移除）+ 模板四工作表（「治理成果」「场景服务」合并为「治理成果与场景服务」8 列全局一行）；v2.0.0 r22 用户指令两项：①资源清单页移除（page-catalog 整页删除、PAGES 8→7、F-030–F-034 移除、R-01 改库卡双口径并列断言）②PRD 重写为研发交付版 v2.0.0（仅保留当前原型对应需求，历史调整不体现；功能点 34 条））
   联动：同源(http)直调 iframe.contentWindow.setPage + 元素悬停高亮；file:// 降级为 iframe src 导航
 -->
 <style>
@@ -124,9 +124,9 @@ button{font-family:inherit}
       <div class="prd-head" id="prdHead"></div>
       <div class="prd-body" id="prdBody"></div>
       <div class="prd-foot">
-        <span>PRD v1.8.1</span><span class="spacer"></span>
-        <a data-i="6">建设任务</a><a data-i="7">数据口径</a>
-        <span>build-2.4.17</span>
+        <span>PRD v2.0.0（研发交付版）</span><span class="spacer"></span>
+        <a data-i="5">建设任务</a><a data-i="6">数据口径</a>
+        <span>build-2.4.18</span>
       </div>
     </aside>
   </div>
@@ -199,17 +199,7 @@ const PAGES=[
  accept:['五项成果指标与 R-05 逐项一致','填报合计与平台台账一致，部分填报有标注','TOP5 合计 = 125,740,861，有「部分明细」标注（R-04）','v1.8.1：合并页 8 项 KPI 无「规划中场景」，页面无 page-scenes / 场景详情抽屉（R-06 断言）','v1.8.1：单位填报列表无「文档 —」展示项；左侧含填报进度与填报完整度（R-13 断言）','v1.8.1：data-caro 轮播函数就绪（startCarousel/refreshCarousels），分页区不轮播（F-051 / R-13）'],
  map:[['8 项 KPI','#achKpis','PRD v1.8.1 §31：成果 5 项 + 场景 3 项'],['治理成果汇总','#achOverview','PRD §7.5 + v1.8.1：左侧丰富板块（轮播）'],['单位填报列表','#achUnits','PRD §7.5：12 家填报（无「文档 —」，轮播）'],['TOP5 榜单','#svcApiList','PRD §7.6：既有服务调用 TOP5（轮播）'],['调用结构占比','#svcStructure','PRD §7.6：TOP5 内部占比（轮播）']]},
 
-{key:'P8',nav:'数据资源清单',name:'数据资源清单',id:'page-catalog',src:'index.html#page-catalog',prd:'PRD §7.7',
- crumb:'<b>数据资源清单</b>',fp:'F×5',
- scene:'在清单页对照「清单态 134 应建」与「台账态 71 明细」双口径；按库别分组（基础库组/专题库组）切换台账表，查看 3D 立体环统计并检索目录。',
- funcs:['F-030 双口径并列：清单态 134 应建 + 台账态 71 明细，不调平','F-031 库别分组层叠卡（4+2），按钮加高 52px、面板内纵向均匀铺满','F-032 台账统计 3D 立体环（71 条按更新频率聚合 + 中心总数）','F-033 目录表搜索 / 频率筛选 / 分页（12 行/页）','F-034 目录抽屉：来源信息 + 已接入字段 chips'],
- rules:['R-01'],
- input:'清单态口径（134 应建）+ 台账态明细（71 条，人口库）',
- output:'库别分组层叠卡（左侧纵向均匀铺满）+ 台账表（搜索/筛选/分页）+ 3D 环统计',
- exception:'其余五库执行态为空值，「明细待导入」；双口径并列展示，不强行调平、不互相推算（R-01）',
- accept:['134 与 71 同时可见、口径独立（R-01）','库别栏按钮不折行、纵向均匀分布（v2.4.1 二次修复）','抽屉含来源信息与字段 chips'],
- map:[['库别分组卡','#catTabs','PRD §7.7：库别分组层叠'],['详情抽屉','#drawer','PRD §7.7：目录来源信息']]},
-
+/* r22：P8 数据资源清单条目随 page-catalog 页面移除 */
 {key:'P9',nav:'建设任务与时限',name:'建设任务与时限（管理侧）',id:null,mgmt:'management.html?page=tasks',prd:'PRD §7.8 延伸',
  crumb:'管理侧 <i>/</i> <b>建设任务与时限</b>',fp:'F×2',
  scene:'管理与巡检人员查看 15 项建设任务在 3 个阶段中的时间轴、责任单位与完成时限（任务时限以文件口径为准）。',
@@ -247,12 +237,12 @@ const RULES=[
  {id:'R-08',text:'供数单位 12 家（应供数 19 家，覆盖 63.2%）',src:'PRD §7.2'},
  {id:'R-09',text:'源表 49 张（28/2/19），健康度 57.1% = 28/49',src:'PRD §7.2'},
  {id:'R-10',text:'字段 1,023 项（明细 896 / 需求 982）',src:'PRD §7.2'},
- {id:'R-11',text:'顶栏可见 build-X.Y.Z（build-2.4.17），与 PRD / state 一致',src:'N4 通过条件'},
+ {id:'R-11',text:'顶栏可见 build-X.Y.Z（build-2.4.18），与 PRD / state 一致',src:'N4 通过条件'},
  {id:'R-12',text:'隐藏导入入口（页面无直接导入/模板按钮，空白区 2s 三连击浮出 #hiddenEntry）+ 数据接入 Excel 导入（弹窗交互 + 导入后预览 + 错误提示规则）+ 四工作表通用版模板（v1.8.1：数据接入 8 列全必填 / 数据治理 6 列全必填规则细化到字段 / 治理成果与场景服务 8 列全局一行（原两 sheet 合并）/ 字段明细 6 列前 5 必填；统一三行结构——第 1 行说明行、第 2 行表头、第 3 行起数据；示例数据统一信用库；仅 .xlsx）',src:'N4 r9 新增 / r10 修订 / r12 单 sheet / r13 增字段明细 / r14 字段类型英文 / r15 去主要字段列 / r16 全要素必填 / r17 表头级全要素 / r18 模板 14 列对齐原型要素 / r19 通用版三工作表 / r20 五工作表通用版 / r21 四工作表 + 隐藏入口'},
- {id:'R-13',text:'v1.8.1 r21：明细区 data-caro 轮播（startCarousel/refreshCarousels，分页区不轮播断言）+ 四工作表导入驱动（S(\'数据接入\') 等四 sheet 解析断言、parseGlobal(\'治理成果与场景服务\') 合并 sheet 断言、ACH_KEYS/SCN_KEYS 按键拆分、IMP_GOV_RULES/IMP_ACH/IMP_SCENE 断言）+ 治理页重构（#govSummary 置顶、无 #updateView/.govtab 断言）+ 场景并入成果页（无 page-scenes 断言）+ 单位填报列表无「文档 —」+ 左侧板块丰富（填报进度/完整度断言）+ 模板 zip 解压断言（四 sheet 名序列 / 8/6/8/6 列带 * 表头 / B 列一类一行 / 示例标记 / varchar·int·decimal·date·datetime 枚举）+ 保留 v1.8.0 r20：目录分页 20 条、抽屉两 Tab、库卡图标、查询全部已接入数据（F-048/F-049/F-050）',src:'N4 r11 新增 / r13–r20 历轮修订 / r21 轮播 + 隐藏入口 + 治理页重构 + 合并 sheet'},
+ {id:'R-13',text:'v1.8.1 r21：明细区 data-caro 轮播（startCarousel/refreshCarousels，分页区不轮播断言）+ 四工作表导入驱动（S(\'数据接入\') 等四 sheet 解析断言、parseGlobal(\'治理成果与场景服务\') 合并 sheet 断言、ACH_KEYS/SCN_KEYS 按键拆分、IMP_GOV_RULES/IMP_ACH/IMP_SCENE 断言）+ 治理页重构（#govSummary 置顶、无 #updateView/.govtab 断言）+ 场景并入成果页（无 page-scenes 断言）+ 单位填报列表无「文档 —」+ 左侧板块丰富（填报进度/完整度断言）+ 模板 zip 解压断言（四 sheet 名序列 / 8/6/8/6 列带 * 表头 / B 列一类一行 / 示例标记 / varchar·int·decimal·date·datetime 枚举）+ 保留 v1.8.0 r20：目录分页 20 条、抽屉两 Tab、库卡图标、查询全部已接入数据（F-048/F-049/F-050）；v2.0.0 r22：无 page-catalog / 无 gotoCatalog 断言',src:'N4 r11 新增 / r13–r22 历轮修订'},
 ];
 const STATES=[
- ['正常','normal','8 页全量渲染','真实','<span class="tag green">✓</span>'],
+ ['正常','normal','大屏 7 页全量渲染（r22 资源清单移除）','真实','<span class="tag green">✓</span>'],
  ['空态','empty','「明细待导入」空态 / 空单位 / 空规则表','真实','<span class="tag green">✓ 切库触发</span>'],
  ['数据缺项','partial','「—」/「待补充」/「部分填报」，未知 ≠ 0','真实','<span class="tag green">✓</span>'],
  ['加载','loading','300ms 淡入 + countUp 入场；无骨架屏','Mock','<span class="tag orange">△ A-02</span>'],

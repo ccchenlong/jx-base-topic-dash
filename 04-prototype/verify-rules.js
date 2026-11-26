@@ -14,7 +14,8 @@
  * r13：导入模板增回「字段明细」独立 sheet（双工作表），R-13 再修字段 sheet 断言，R-11 断言升 build-2.4.9
  * r12：总览驾驶舱展示入口移除；R-13 修订单工作表模板口径，R-11 断言升 build-2.4.8
  * r11：新增 R-13，R-11 断言升 build-2.4.7
- * r21：用户指令五项调整（PRD v1.8.1 / build-2.4.17）——R-11 升 build-2.4.17；R-06 改写为「既有服务独立统计，规划场景不再展示」（场景服务并入治理成果页）；R-12 升四工作表口径；R-13 重写：合并 sheet「治理成果与场景服务」8 列、page-scenes 移除、更新机制移除、data-caro 轮播、隐藏导入入口三连击、单位填报列表无「文档 —」、模板解压断言改四工作表
+ * r21：用户指令五项调整（PRD v2.0.0 / build-2.4.18）——R-11 升 build-2.4.18；R-06 改写为「既有服务独立统计，规划场景不再展示」（场景服务并入治理成果页）；R-12 升四工作表口径；R-13 重写：合并 sheet「治理成果与场景服务」8 列、page-scenes 移除、更新机制移除、data-caro 轮播、隐藏导入入口三连击、单位填报列表无「文档 —」、模板解压断言改四工作表
+ * r22：用户指令两项（PRD v2.0.0 / build-2.4.18）——①资源清单页移除：R-01 改断言库卡「应建数据目录/台账已接入/台账待补充」并列（原 P8 双口径统计随页删除）、R-02 改断言「待补充」口径、R-11 升 build-2.4.18、R-13 增无 page-catalog 断言②PRD 重写为研发交付版 v2.0.0
  */
 'use strict';
 const fs = require('fs');
@@ -49,11 +50,11 @@ const dom = rendered.replace(/<script[\s\S]*?<\/script>/gi, '');
 
 const RULES = [
   { id: 'R-01', name: '双口径并列不调平',
-    doc: '清单态（附件2 应建 134 条）与台账态（执行）独立并列、不强行调平（03-prd.md 7.7 / R-01）',
-    test: () => dom.includes('应建 134') && dom.includes('台账 71') && dom.includes('双口径') },
+    doc: '库卡应建数据目录（清单态）与接入台账（台账态）独立并列、不强行调平（PRD v2.0.0 / R-01）',
+    test: () => dom.includes('应建目录') && dom.includes('已录入明细') && dom.includes('台账待补充') },
   { id: 'R-02', name: '未知≠0，不得推算',
     doc: '未填报项显示“—”或“待补充”，不得用其他数量推算（03-prd.md 7.5 / R-02）',
-    test: () => dom.includes('待导入') && dom.includes('待补充') && !dom.includes('按 0 计算') },
+    test: () => dom.includes('待补充') && dom.includes('该单位目录明细待补充') && !dom.includes('按 0 计算') },
   { id: 'R-03', name: '主展示数量精确到个位，不用万/亿/整十数',
     doc: '主展示汇总数量精确到个位，不出现 434,000,000 等人为整十数（03-prd.md 8.1 / R-03）',
     test: () => dom.includes('433,120,247') && !/434,000,000|4\.34\s*亿/.test(dom) && !dom.includes('亿次') && !dom.includes('万次') },
@@ -80,8 +81,8 @@ const RULES = [
     doc: '数据字段 1,023 项；已接入明细 896 / 需求 982（03-prd.md 7.2 / R-10）',
     test: () => dom.includes('1,023') && src.includes('896') },
   { id: 'R-11', name: '版本标识可见 + hash 导航（对照页联动）',
-    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.17），与 PRD / state 版本一致（PRD v1.8.1）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）',
-    test: () => dom.includes('build-2.4.17') && src.includes('id="buildTag"')
+    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.18），与 PRD / state 版本一致（PRD v2.0.0）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）',
+    test: () => dom.includes('build-2.4.18') && src.includes('id="buildTag"')
       && src.includes("addEventListener('hashchange'") && src.includes('window.setPage=setPage') },
   { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版四工作表模板（F-046/F-047 / PRD v1.5.0→v1.8.1）',
     doc: 'v1.8.1 §31 / 03-prd.md §5–§6：大屏不直接展示导入模板/导入入口，空白区域 2 秒内连击 3 次浮出隐藏入口面板；导入居中弹窗（遮罩/Escape/焦点约束），确认后提供导入结果预览，错误提示规则分级落地；零依赖解析写入内存并保留双口径与未知≠0 口径（N4 r9 新增 / r10 修订 / r20 五工作表 / r21 四工作表+隐藏入口）',
@@ -91,7 +92,7 @@ const RULES = [
       /* r21 隐藏导入入口：页面无直接导入按钮，空白三连击开启 */
       && !src.includes('id="btnTpl"') && !src.includes('id="btnImport"')
       && src.includes('hiddenEntry') && src.includes('_hideClicks') && src.includes('btnTplH') && src.includes('btnImportH') },
-  { id: 'R-13', name: '明细区轮播 / 四工作表导入模板与合并 sheet / 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-020/F-022/F-026/F-027/F-046–F-050 / PRD v1.8.1）',
+  { id: 'R-13', name: '明细区轮播 / 四工作表导入模板与合并 sheet / 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-020/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.0）',
     doc: 'v1.8.1 §5/§7/§31 / 03-prd.md：通用版模板四工作表（数据接入 8 列全必填 / 数据治理 6 列全必填·字段级 / 治理成果与场景服务 8 列全局一行（原两 sheet 合并） / 字段明细 5 必填列），每 sheet 第 1 行说明行、第 2 行表头、第 3 行起数据（信用库示例，任一单元格含「示例」整行跳过）；合并 sheet 按键拆分写 IMP_ACH/IMP_SCENE 驱动合并页 KPI；治理成果页左侧板块丰富、单位填报列表无「文档 —」；治理页统计总数置顶+明细在下、「更新机制」Tab 移除；场景服务并入治理成果页、规划场景不再展示；各明细滚动区 data-caro 轮播（分页区不轮播）；填报值替换、未填保持快照（所有数据来源均为数据表导入）',
     test: () => dom.includes('查询全部已接入数据') && src.includes('LIB_ICONS') && src.includes('openAllDataModal')
       && src.includes('openDirDrawer') && src.includes('DATA_TABLES')

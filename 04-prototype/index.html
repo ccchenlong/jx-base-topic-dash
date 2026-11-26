@@ -607,20 +607,7 @@ main{position:absolute;left:0;top:calc(var(--top) + var(--sub));width:100%;heigh
 .libcard.basic{border-top:3px solid #1677FF}
 .libcard.thematic{border-top:3px solid #FA8C16}
 .lg-them .libcard{grid-column:span 2}  /* 专题库 2 卡各占 2 列，与基础库 4 列网格对齐 */
-/* 资源清单：库别层叠卡 + 分组（v2.4.1 纵向均匀分布，利用面板完整高度） */
-.ct-grp{display:flex;flex-direction:column;gap:16px;margin-bottom:0}
-.ct-grp-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#1D2129;height:22px;flex:none}
-.ct-grp-h i{width:8px;height:8px;border-radius:2px;background:#1677FF;flex:none}
-.ct-grp.them .ct-grp-h i{background:#FA8C16}
-.ct-grp-h span{font-size:10px;font-weight:400;color:var(--dim)}
-#catTabs .ct-scope{margin-top:0;padding-top:16px;border-top:1px solid rgba(22,119,255,.1)}
-#catTabs .ct-scope .mini-row{margin-bottom:5px}
-#catTabs .ct-scope .mini-row span{font-size:11px}
-#catTabs .ct-scope .mini-row b{font-size:11px}
-#catTabs button.tab3d{position:relative;border-radius:8px;min-height:52px}
-#catTabs button.tab3d::after{content:"";position:absolute;left:3px;top:3px;width:100%;height:100%;border-radius:8px;background:rgba(22,119,255,.09);z-index:-1}
-#catTabs button.tab3d.t-them{box-shadow:inset 3px 0 0 #FA8C16,0 3px 0 rgba(250,140,22,.20),0 7px 13px rgba(22,119,255,.12)}
-#catTabs button.tab3d.t-basic{box-shadow:inset 3px 0 0 #1677FF,0 3px 0 rgba(22,119,255,.20),0 7px 13px rgba(22,119,255,.12)}
+/* r22：P8 资源清单页移除（原 .ct-grp/#catTabs 库别层叠卡样式随页删除） */
 
 /* ---------- 面板/卡片实体立体感（v2.4.2）：白色亚克力板浮于蓝底 ---------- */
 /* 仅用背景渐变 + box-shadow，不改尺寸、不占布局、不拦截交互；伪元素仍保留四角标记/高光/装饰 */
@@ -719,11 +706,11 @@ main{position:absolute;left:0;top:calc(var(--top) + var(--sub));width:100%;heigh
     </div>
     <nav class="mainnav" id="mainnav">
       <button data-page="libraries" class="on">库资源门户</button>
-      <button data-page="catalog">资源清单</button>
+      <!-- r22：资源清单入口移除（用户指令①，P8 page-catalog 整页删除） -->
     </nav>
     <div class="meta">
       <div class="snap">数据快照<b>2026-11-16</b></div>
-      <div class="buildtag" id="buildTag">build-2.4.17</div>
+      <div class="buildtag" id="buildTag">build-2.4.18</div>
       <div class="clock"><b id="clock">15:41:02</b><span id="today">2026.11.17 星期二</span></div>
       <button class="iconbtn" id="tourBtn" title="展陈巡播">▶</button>
       <button class="iconbtn" id="fullBtn" title="全屏">⛶</button>
@@ -1050,33 +1037,7 @@ main{position:absolute;left:0;top:calc(var(--top) + var(--sub));width:100%;heigh
       </div>
     </section>
 
-    <!-- ========== P8 资源清单 ========== -->
-    <section class="page" id="page-catalog">
-      <div style="display:grid;grid-template-columns:236px 1fr 356px;gap:14px;height:100%">
-        <div class="panel" style="display:flex;flex-direction:column;min-height:0">
-          <div class="panel-title" style="white-space:nowrap;margin-bottom:9px">库别<span class="tag" style="white-space:nowrap">应建 134 · 台账 71</span></div>
-          <div id="catTabs" class="scroll" style="display:flex;flex-direction:column;justify-content:space-between;gap:0;flex:1;min-height:0;overflow:auto;padding:4px 0"></div>
-        </div>
-        <div class="panel" style="display:flex;flex-direction:column;min-height:0">
-          <div class="panel-title" id="catTitle">人口基础库 · 71 条<span class="tag" id="catLoaded">台账态 · 11-16</span></div>
-          <div style="display:flex;gap:10px;margin-bottom:10px">
-            <div class="search" style="flex:1">⌕ <input id="catSearch" placeholder="搜索数据目录 / 数源部门"></div>
-            <select id="catFreq" class="search" style="width:140px;color:var(--muted)"><option value="">全部频率</option><option>实时</option><option>每日</option><option>每月</option><option>每季</option><option>每年</option></select>
-          </div>
-          <div style="flex:1;min-height:0;overflow:auto" class="scroll">
-            <table class="dtable">
-              <thead><tr><th style="width:44px">序号</th><th style="width:38%">数据目录</th><th>数源部门</th><th>提供方式</th><th>更新频率</th><th>状态</th></tr></thead>
-              <tbody id="catBody"></tbody>
-            </table>
-          </div>
-          <div class="mini-row" style="margin-top:8px"><span id="catPageInfo">第 1 / 2 页</span><span style="display:flex;gap:8px"><button class="backbtn" id="catPrev">上一页</button><button class="backbtn" id="catNext">下一页</button></span></div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">台账统计 · 双口径<span class="tag">当前库</span></div>
-          <div id="catStats"></div>
-        </div>
-      </div>
-    </section>
+    <!-- r22：P8 资源清单（page-catalog）整页移除（用户指令①）——库别层叠卡 / 目录检索表格 / 台账双口径统计随之删除 -->
 
   </main>
 
@@ -2123,8 +2084,7 @@ function openLib(key){
     <div class="dsec">更新频率要求</div>
     <div class="chips">${Object.entries(freq).map(([f,c])=>`<span class="chip">${f} · ${c} 条</span>`).join('')}</div>
     <div class="dsec">可查看内容</div>
-    
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap"><button class="backbtn" onclick="gotoCatalog('${key}')">前往资源清单 →</button></div>`);/* r21：内联导入入口移除（用户指令②） */
+    `);/* r21：内联导入入口移除（用户指令②）；r22：「前往资源清单」按钮随 P8 移除 */
 }
 
 /* ================= population ================= */
@@ -2223,7 +2183,7 @@ function renderAllTbl(){
     </tbody></table>`:'<div class="empty"><div>未找到匹配的数据表</div></div>';
 }
 function openAllDataModal(){
-  openModal(`<h2>全部已接入数据</h2><div class="msub">数据接入 · 全量数据表查询（F-049） · build-2.4.17</div>
+  openModal(`<h2>全部已接入数据</h2><div class="msub">数据接入 · 全量数据表查询（F-049） · build-2.4.18</div>
     <div class="mbody">
       <div class="search" style="margin-bottom:10px">⌕ <input id="allTblSearch" placeholder="搜索数据表名称 / 所属目录 / 数据源单位" oninput="renderAllTbl()"></div>
       <div id="allTblMeta" class="imp-tip" style="margin-bottom:8px"></div>
@@ -2435,7 +2395,7 @@ const IND_NUMS=[['libCatalogs','应建目录数'],['libRecords','库接入数据
 /* ---- 导入弹窗（N4 r10 · F-047 v1.5.0：抽屉改居中弹窗 + 导入后结果预览 + 错误提示规则见 03-prd.md §6） ---- */
 let impState=null;
 function openTplModal(){
-  openModal(`<h2>下载导入模板</h2><div class="msub">数据接入 · 通用版导入模板（F-046） · build-2.4.17</div>
+  openModal(`<h2>下载导入模板</h2><div class="msub">数据接入 · 通用版导入模板（F-046） · build-2.4.18</div>
     <div class="mbody">
       <div class="imp-tip" style="margin-bottom:14px">通用版导入模板（四工作表）：<b>「数据接入」</b>（8 列全部必填：单位 / 覆盖范围 / 库名称 / 库类型 / 库接入数据量 / 应建目录数 / 库数据字段数 / 库接入源表数；覆盖范围一类一行）、<b>「数据治理」</b>（6 列全部必填：规则编号 / 库名称 / 库类型 / 目标表 / 字段 / 规则描述，规则细化到字段）、<b>「治理成果与场景服务」</b>（全平台汇总一行 8 列：流程节点数 / 治理字段次数 / 结果表数量 / 沉淀文档数 / 累计订阅次数 / 接口调用次数 / 服务接口数 / 规划场景数）、<b>「字段明细」</b>（所属数据目录须与平台已登记目录一致）。<b>每个工作表第 1 行为说明行（字段含义与填写要求）、第 2 行为表头、第 3 行起为数据；示例数据为信用库（任一单元格含「示例」的行导入自动跳过，正式填报覆盖第三行即可）。</b>各列填报口径详见模板内说明行。</div>
       <a class="tpl-link" style="margin-bottom:8px" href="templates/导入模板-通用版.xlsx" download>导入模板 - 通用版（六库合一 · 数据接入 + 数据治理 + 治理成果与场景服务 + 字段明细）<span>下载 ↓</span></a>
@@ -2447,7 +2407,7 @@ function openImportModal(presetKey){
   impState=null;
   const libs=IMP_LIBS();
   const def=presetKey&&libs.some(l=>l.key===presetKey)?presetKey:'pop';
-  openModal(`<h2>Excel 导入</h2><div class="msub">数据接入 · 指标数值与目录台账导入（F-047） · build-2.4.17</div>
+  openModal(`<h2>Excel 导入</h2><div class="msub">数据接入 · 指标数值与目录台账导入（F-047） · build-2.4.18</div>
     <div class="mbody">
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
         <span style="font-size:12px;color:var(--muted)">目标库</span>
@@ -2842,108 +2802,7 @@ $('#svcStructure').innerHTML=`
 `;
 refreshCarousels();
 
-/* ================= catalog（双口径：清单态 134 应建 / 台账态 人口库 71 条；N4 r9 起其余五库可 Excel 导入台账） ================= */
-let curLib='pop', catPage=1, catQuery='', catFreq='';
-const PAGE_SIZE=12;
-const ledgerRows=k=>LEDGER_CATS.filter(c=>c.lib===k);
-const impTagHtml=()=>{const n=LEDGER_CATS.filter(c=>c.imported).length;return n?`（含导入 ${n} 条）`:'';};
-function catRows(){return ledgerRows(curLib);}
-function catFiltered(){return catRows().filter(c=>(!catQuery||c.name.includes(catQuery)||c.dept.includes(catQuery))&&(!catFreq||c.freq===catFreq));}
-/* 通用 3D 立体环：椭圆投影 + 厚度侧壁（资源清单台账统计复用 freqRing 几何） */
-function drawRing3D(svg,items,total){
-  if(!svg)return;
-  const shade=(hex,k)=>{const n=parseInt(hex.slice(1),16),c=v=>Math.min(255,Math.round(v*k));return `rgb(${c(n>>16&255)},${c(n>>8&255)},${c(n&255)})`;};
-  const PI=Math.PI,GAP=.03,cx=75,cy=62,RX=50,RY=22,RXI=32,RYI=14,TH=13;
-  const pt=(a,rx,ry,y=cy)=>`${(cx+rx*Math.cos(a)).toFixed(1)},${(y+ry*Math.sin(a)).toFixed(1)}`;
-  const arc=(a0,a1,rx,ry,sw,y=cy)=>`A ${rx} ${ry} 0 ${a1-a0>PI?1:0} ${sw} ${pt(a1,rx,ry,y)}`;
-  const T=items.reduce((a,x)=>a+x.n,0)||1;
-  let acc=-PI/2;
-  const segs=items.map(x=>{const a0=acc;acc+=x.n/T*PI*2;return {...x,a0:a0+GAP/2,a1:acc-GAP/2};});
-  const clip=(sg,lo,hi)=>sg.a1>lo&&sg.a0<hi?[Math.max(sg.a0,lo),Math.min(sg.a1,hi)]:null;
-  let out=`<ellipse cx="${cx}" cy="${cy+TH}" rx="${RX+3}" ry="${RY+2}" fill="rgba(22,119,255,.16)"/>`;
-  segs.forEach(sg=>{
-    const fo=clip(sg,0,PI);
-    if(fo)out+=`<path d="M ${pt(fo[0],RX,RY)} ${arc(fo[0],fo[1],RX,RY,1)} L ${pt(fo[1],RX,RY,cy+TH)} ${arc(fo[1],fo[0],RX,RY,0,cy+TH)} Z" fill="${shade(sg.color,.48)}"/>`;
-    [[-PI/2,0],[PI,PI*1.5]].forEach(rg=>{const fi=clip(sg,rg[0],rg[1]);
-      if(fi)out+=`<path d="M ${pt(fi[0],RXI,RYI)} ${arc(fi[0],fi[1],RXI,RYI,1)} L ${pt(fi[1],RXI,RYI,cy+TH)} ${arc(fi[1],fi[0],RXI,RYI,0,cy+TH)} Z" fill="${shade(sg.color,.32)}"/>`;});
-    out+=`<path d="M ${pt(sg.a0,RX,RY)} ${arc(sg.a0,sg.a1,RX,RY,1)} L ${pt(sg.a1,RXI,RYI)} ${arc(sg.a1,sg.a0,RXI,RYI,0)} Z" fill="${sg.color}" fill-opacity=".94" stroke="${shade(sg.color,1.35)}" stroke-width=".8"/>`;
-  });
-  out+=`<text x="${cx}" y="${cy+2}" text-anchor="middle" font-size="17" font-weight="700" fill="#1D2129" class="num">${total}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="9" fill="#8CA0B8">条台账</text>`;
-  svg.innerHTML=out;
-}
-function renderCatTabs(){
-  const tabBtn=l=>{
-    const on=l.key===curLib, n=ledgerRows(l.key).length;
-    return `<button class="tab3d ${l.type==='基础库'?'t-basic':'t-them'}" data-lib="${l.key}" style="display:flex;align-items:center;gap:9px;padding:15px 13px;border:1px solid ${on?'var(--cyan)':'rgba(22,119,255,.12)'};background:${on?'rgba(22,119,255,.12)':'rgba(22,119,255,.06)'};color:${on?'#1677FF':'var(--muted)'};font-size:13px;text-align:left;white-space:nowrap">
-      <span style="width:8px;height:8px;border-radius:50%;background:${l.color};box-shadow:0 0 8px ${l.color};flex:none"></span>
-      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${l.name}</span><b class="num" style="color:${on?'var(--cyan2)':'var(--dim)'};flex:none;font-size:11.5px">${n||'待导入'}</b></button>`;
-  };
-  $('#catTabs').innerHTML=['基础库','专题库'].map(t=>`<div class="ct-grp ${t==='基础库'?'bas':'them'}"><div class="ct-grp-h"><i></i>${t}<span>${LIBS.filter(l=>l.type===t).length} 个</span></div>${LIBS.filter(l=>l.type===t).map(tabBtn).join('')}</div>`).join('');
-  $$('#catTabs button').forEach(b=>b.onclick=()=>{curLib=b.dataset.lib;catPage=1;renderCatTabs();renderCat();});
-  $('#catTabs').insertAdjacentHTML('beforeend',`<div class="ct-scope">
-    <div class="dim" style="font-size:11px;margin-bottom:12px">双口径：应建（清单态）/ 明细（台账态）</div>
-    ${LIBS.map(l=>{const n=ledgerRows(l.key).length;return `<div style="margin-bottom:11px"><div class="mini-row"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name}</span><b style="flex:none">${l.catalogs} / ${n||'—'}</b></div><div class="bar" style="height:4px"><i style="width:${n/l.catalogs*100}%;background:${l.color}"></i></div></div>`;}).join('')}
-  </div>`);
-}
-function renderCat(){
-  const l=LIBS.find(x=>x.key===curLib);
-  const rows=catFiltered(), all=catRows();
-  const maxPage=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
-  catPage=Math.min(catPage,maxPage);
-  const slice=rows.slice((catPage-1)*PAGE_SIZE,catPage*PAGE_SIZE);
-  $('#catTitle').innerHTML=all.length?`${l.name} · ${all.length} 条<span class="tag">台账态 · 接入进展表 11-16</span>`
-    :`${l.name}<span class="tag">清单态应建 ${l.catalogs} 条 · 台账待导入</span>`;
-  $('#catBody').innerHTML=!all.length
-    ? `<tr><td colspan="6" style="text-align:center;padding:60px 0;color:var(--dim);line-height:2">该库接入台账明细待导入<br><span style="font-size:11px">仅人口基础库提供 2026-11-16 接入进展表，其余五库不推算目录、单位、字段与数据量</span><br>
-       <span style="font-size:10px">（导入入口已隐藏：空白区域连击 3 次开启）</span></td></tr>`
-    : slice.length?slice.map(c=>`<tr class="clickable" data-id="${c.id}">
-        <td class="dim num">${String(c.id).padStart(2,'0')}</td><td class="name">${c.name}</td><td>${c.dept}</td><td>${c.method}</td><td>${c.freq}</td><td><span class="badge ${c.st==='已接入'?'ok':'info'}">${c.st}</span></td></tr>`).join('')
-    : `<tr><td colspan="6" style="text-align:center;padding:70px 0;color:var(--dim)">未找到匹配的目录</td></tr>`;
-  $('#catPageInfo').textContent=all.length?`第 ${catPage} / ${maxPage} 页 · 共 ${rows.length} 条`:'—';
-  $$('#catBody tr[data-id]').forEach(tr=>tr.onclick=()=>{
-    const c=LEDGER_CATS.find(x=>x.id===+tr.dataset.id);
-    openDrawer(`<h2>${c.name}</h2><div class="dsub">数据目录 · ${l.name} · 台账态 · 快照 2026-11-16</div>
-      <div class="dgrid"><div><span>数源部门</span><b>${c.dept}</b></div><div><span>提供方式</span><b>${c.method}</b></div>
-      <div><span>更新频率</span><b>${c.freq}</b></div><div><span>接入状态</span><b>${c.st}</b></div>
-      <div><span>数据量</span><b>${c.rows}</b></div><div><span>字段数</span><b>${c.fields} 项</b></div></div>
-      <div class="dsec">来源</div><div class="note">大屏HTML挂接版 · 人口基础库数据接入进展表（2026-11-16）</div>`);
-  });
-  /* 右侧统计：台账态真实分布 + 双口径并列标注 */
-  if(!all.length){
-    $('#catStats').innerHTML=`<div class="note" style="line-height:1.9">该库暂无台账明细，待导入。</div>
-      <div class="dsec" style="margin-top:18px">全局台账</div>
-      <div class="mini-row"><span>清单态 · 应建</span><b>134 条（六库）</b></div>
-      <div class="mini-row"><span>台账态 · 明细</span><b>${LEDGER_CATS.length} 条${impTagHtml()}</b></div>
-`;
-    return;
-  }
-  const f={},m={},top={},st={};
-  all.forEach(c=>{f[c.freq]=(f[c.freq]||0)+1;m[c.method]=(m[c.method]||0)+1;top[c.dept]=(top[c.dept]||0)+1;st[c.st]=(st[c.st]||0)+1;});
-  const topList=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  $('#catStats').innerHTML=`
-    <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
-      <div class="ringwrap" style="width:118px;height:118px;flex:none"><svg id="catRing" viewBox="0 0 150 150" style="width:100%;height:100%;overflow:visible"></svg></div>
-      <div class="note">台账明细（更新频率 3D 环）<br><b>${all.length}</b> 条 · 已接入 <b>${st['已接入']||0}</b> / 待接入 <b>${st['待接入']||0}</b></div>
-    </div>
-    <div class="dsec" style="margin-top:0">更新频率</div>
-    ${FREQS.map(x=>`<div class="mini-row"><span>${x}</span><b>${f[x]||0} 条</b></div><div class="bar" style="margin-bottom:7px"><i style="width:${(f[x]||0)/all.length*100}%;background:${FREQ_COLORS[x]}"></i></div>`).join('')}
-    <div class="dsec">提供方式</div>
-    ${['库表','接口','文件'].map(x=>`<div class="mini-row"><span>${x}</span><b>${m[x]||0} 条</b></div><div class="bar" style="margin-bottom:7px"><i style="width:${(m[x]||0)/all.length*100}%"></i></div>`).join('')}
-    <div class="dsec">数源部门 TOP</div>
-    ${topList.map(([n,c])=>`<div class="mini-row"><span>${n}</span><b>${c}</b></div>`).join('')}
-    <div class="dsec">清单 / 台账</div>
-    <div class="mini-row"><span>清单态 · 应建</span><b>134 条（六库）</b></div>
-    <div class="mini-row"><span>台账态 · 明细</span><b>${LEDGER_CATS.length} 条${impTagHtml()}</b></div>
-    `;
-  /* 平面环形图 → 3D 立体环（FREQ_COLORS 为 CSS 变量，shade 需 hex，此处用局部 hex 映射） */
-  drawRing3D($('#catRing'),FREQS.map(x=>({label:x,n:f[x]||0,color:{'实时':'#1677FF','每日':'#4096FF','每月':'#6B83FB','每季':'#FAAD14','每年':'#8C8C8C'}[x]})),all.length);
-}
-$('#catSearch').oninput=e=>{catQuery=e.target.value.trim();catPage=1;renderCat();};
-$('#catFreq').onchange=e=>{catFreq=e.target.value;catPage=1;renderCat();};
-$('#catPrev').onclick=()=>{catPage=Math.max(1,catPage-1);renderCat();};
-$('#catNext').onclick=()=>{catPage++;renderCat();};
-renderCatTabs();renderCat();
-function gotoCatalog(key){closeDrawer();curLib=key;catPage=1;renderCatTabs();renderCat();setPage('page-catalog');}
+/* r22：资源清单（page-catalog）JS 区块整体移除——catRows、renderCat、ledgerRows、PAGE_SIZE、impTagHtml、drawRing3D、gotoCatalog 随页删除；LEDGER_CATS 数据保留供 P2/P3/导入链路使用 */
 
 /* ================= navigation ================= */
 const PAGE_META={
@@ -2952,8 +2811,8 @@ const PAGE_META={
   'page-population':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>数据总览',tabs:true},
   'page-access':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>数据接入',tabs:true},
   'page-governance':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>数据治理',tabs:true},
-  'page-achievement':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>治理成果 · 场景服务',tabs:true},
-  'page-catalog':{nav:'catalog',crumb:'<b>数据资源清单</b>',tabs:false}
+  'page-achievement':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>治理成果 · 场景服务',tabs:true}
+  /* r22：'page-catalog'（数据资源清单）路由项随页移除 */
 };
 let currentPage='page-libraries';
 function setPage(id){
@@ -2981,7 +2840,7 @@ function setPage(id){
 $$('#mainnav button').forEach(b=>b.onclick=()=>{stopTour();setPage('page-'+b.dataset.page);});
 $$('#libTabs button').forEach(b=>b.onclick=()=>{stopTour();setPage(b.dataset.goto);});
 $('#backBtn').onclick=()=>setPage('page-libraries');
-window.gotoCatalog=gotoCatalog;
+/* r22：window.gotoCatalog 随资源清单页移除 */
 
 /* ================= drawer ================= */
 function openDrawer(html){$('#drawerContent').innerHTML=html;$('#drawer').classList.add('on');$('#mask').classList.add('on');}
@@ -2993,7 +2852,7 @@ $('#mclose').onclick=closeModal;$('#mmask').onclick=closeModal;
 addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal').classList.contains('on'))closeModal();closeDrawer();stopTour();}});
 
 /* ================= tour ================= */
-const TOUR=['page-libraries','page-population','page-access','page-governance','page-achievement','page-catalog']; /* v1.6.0：总览驾驶舱移出巡播；v1.8.1：场景服务并入治理成果页，page-scenes 移出 */
+const TOUR=['page-libraries','page-population','page-access','page-governance','page-achievement']; /* r22：page-catalog 移出巡播；v1.8.1：场景服务并入治理成果页，page-scenes 移出 */
 let tourTimer=null,tourIdx=0;
 function startTour(){
   stopTour();
@@ -3013,7 +2872,7 @@ $('#fullBtn').onclick=()=>{
   else document.exitFullscreen();
 };
 
-/* init · build-2.4.4 新增 hash 导航（供 prototype-prd.html 对照页 iframe 联动）；build-2.4.5 新增数据接入 Excel 导入（F-046/F-047）；build-2.4.6 导入改弹窗交互 + 导入后结果预览 + 错误提示规则（PRD v1.5.0）；build-2.4.7 六库模板新增「数据表」工作表 + 导入解析支持数据表 sheet + 库卡右上角库元素图标 + 目录详情抽屉 Tab 下钻（目录信息/数据表/已接入字段）+ 查询全部已接入数据弹窗（F-048/F-049）；build-2.4.8（PRD v1.6.0）总览驾驶舱展示入口移除（导航/巡播/默认页改库资源门户，section 与口径保留存档）+ 导入模板简化为单工作表「数据目录」（12 列，含主要字段 1-3 与数据开始/截止时间）+ 导入解析适配新表头；build-2.4.9（PRD v1.7.0）导入模板增回「字段明细」独立 sheet（所属数据目录*、数据源单位*、字段名称*、字段类型、字段长度、字段说明，模板 = 双工作表）+ 导入全链路支持字段 sheet（字段名称去重合并进目录「已接入字段」items，示例/说明行与未登记目录引用自动跳过或标红）；build-2.4.10（PRD v1.7.1）字段类型改用英文类型名（varchar / int / decimal / date / datetime，模板示例数据与「填写说明」同步，导入解析不变）；build-2.4.11（PRD v1.7.2）「数据目录」sheet 去掉主要字段 1–3 三列（12→9 列，字段要素以「字段明细」sheet 为准），导入不再从主要字段写入 items（已接入字段仅由「字段明细」sheet 合并），示例数据与填写说明同步；build-2.4.12（PRD v1.7.3）导入改全要素必填（「数据目录」9 列全部必填、「字段明细」除字段说明外必填，缺失任一展示要素明确提示并阻止导入该行）+ 导入完整数据并入大屏展示（数据接入页单位视图合并导入目录并新增导入供数单位、目录抽屉展示全部要素并修复 undefined、数据治理-更新机制并入导入目录）+ impFmtRows 精确到个位（R-03）；build-2.4.13（PRD v1.7.4）导入表头级全要素校验（用户指令：填写的表头也要包含全部要素）——「数据目录」sheet 表头须包含全部 9 列要素列、「字段明细」表头须包含 5 个必填要素列（字段说明选填可缺），缺任一列文件级阻止导入并明确提示缺失列，模板「填写说明」增表头完整条款；build-2.4.14（PRD v1.7.5）导入模板对齐原型展示要素（用户指令：调整导入模板，把原型中展示的要素全部在导入模板中体现，下发各厅局填写后导入系统展示）——「数据目录」sheet 9→14 列（新增 需求字段数* / 接入状态* / 约定更新时间* / 物理表源表名* / 治理表名*），导入按填报值登记接入状态（已接入/待接入，不再一律「已接入」）并写入 req/agreed/src/gov，目录抽屉显示真实源表/治理表/约定更新时间/需求字段数（填「—」显示「待治理登记」占位，未知≠0），数据表 Tab 由填报表名派生源表/治理表（不虚构编码）；build-2.4.16（PRD v1.7.6）需求转向：通用版导入模板 + 指标数值驱动展示（用户指令：不要管之前的需求，现在只是做模板，是为了有些单位无法提供数据，只提供各项指标数值，用于省里做展示用）——模板改为一个通用版文件（六库合一，三工作表：「指标数值」31 列 = 库名称/库类型/牵头单位/覆盖范围 预填 + 27 项指标数值列 + 健康度，供无法提供目录明细数据的单位只填数值；「数据目录」14 列与「字段明细」保留供能提供明细的单位填写）+ 导入按表名定位「数据目录」、支持仅含「指标数值」的文件 + 新增 impMapIndHeader/IND_NUMS 解析「指标数值」sheet（数值校验、库名称匹配六库、示例与未填报行跳过）+ impCommit 写入 IMP_LIB_SUM 并刷新展示（P2 库卡应建目录数 renderLibGrid、P3 renderPopKpis/renderPopMods 六 KPI 与四模块统计、P6 renderAch 五 KPI、P7 renderSceneKpis 四 KPI——厅局填什么就展示什么，未填报指标保持快照）+ 导入回执三区段（指标/目录/字段）；build-2.4.17（PRD v1.8.1 · r21）用户指令五项调整——①各模块明细展示区增加轮播（data-caro 标记 + startCarousel/refreshCarousels：溢出行进/到底回顶/hover 暂停/刷新重建，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮与两处内联「导入台账 Excel」，空白区域 2 秒内连击 3 次浮出隐藏入口面板、再次三连击收起）③数据治理页重构（统计总数 4 卡置顶、下方规则明细，移除「更新机制」Tab 与 renderGovUpdate）④治理成果页左侧板块丰富（填报进度/填报完整度/沉淀文档合计/填报口径卡/贡献 TOP/归集链路）+ 单位填报列表删除恒空「文档 —」项⑤场景服务并入治理成果页（P7 删除、导航 5→4、「规划场景」展示全面移除）+ 导入模板「治理成果」「场景服务」两 sheet 合并为「治理成果与场景服务」（8 列全平台汇总一行） */
+/* init · build-2.4.4 新增 hash 导航（供 prototype-prd.html 对照页 iframe 联动）；build-2.4.5 新增数据接入 Excel 导入（F-046/F-047）；build-2.4.6 导入改弹窗交互 + 导入后结果预览 + 错误提示规则（PRD v1.5.0）；build-2.4.7 六库模板新增「数据表」工作表 + 导入解析支持数据表 sheet + 库卡右上角库元素图标 + 目录详情抽屉 Tab 下钻（目录信息/数据表/已接入字段）+ 查询全部已接入数据弹窗（F-048/F-049）；build-2.4.8（PRD v1.6.0）总览驾驶舱展示入口移除（导航/巡播/默认页改库资源门户，section 与口径保留存档）+ 导入模板简化为单工作表「数据目录」（12 列，含主要字段 1-3 与数据开始/截止时间）+ 导入解析适配新表头；build-2.4.9（PRD v1.7.0）导入模板增回「字段明细」独立 sheet（所属数据目录*、数据源单位*、字段名称*、字段类型、字段长度、字段说明，模板 = 双工作表）+ 导入全链路支持字段 sheet（字段名称去重合并进目录「已接入字段」items，示例/说明行与未登记目录引用自动跳过或标红）；build-2.4.10（PRD v1.7.1）字段类型改用英文类型名（varchar / int / decimal / date / datetime，模板示例数据与「填写说明」同步，导入解析不变）；build-2.4.11（PRD v1.7.2）「数据目录」sheet 去掉主要字段 1–3 三列（12→9 列，字段要素以「字段明细」sheet 为准），导入不再从主要字段写入 items（已接入字段仅由「字段明细」sheet 合并），示例数据与填写说明同步；build-2.4.12（PRD v1.7.3）导入改全要素必填（「数据目录」9 列全部必填、「字段明细」除字段说明外必填，缺失任一展示要素明确提示并阻止导入该行）+ 导入完整数据并入大屏展示（数据接入页单位视图合并导入目录并新增导入供数单位、目录抽屉展示全部要素并修复 undefined、数据治理-更新机制并入导入目录）+ impFmtRows 精确到个位（R-03）；build-2.4.13（PRD v1.7.4）导入表头级全要素校验（用户指令：填写的表头也要包含全部要素）——「数据目录」sheet 表头须包含全部 9 列要素列、「字段明细」表头须包含 5 个必填要素列（字段说明选填可缺），缺任一列文件级阻止导入并明确提示缺失列，模板「填写说明」增表头完整条款；build-2.4.14（PRD v1.7.5）导入模板对齐原型展示要素（用户指令：调整导入模板，把原型中展示的要素全部在导入模板中体现，下发各厅局填写后导入系统展示）——「数据目录」sheet 9→14 列（新增 需求字段数* / 接入状态* / 约定更新时间* / 物理表源表名* / 治理表名*），导入按填报值登记接入状态（已接入/待接入，不再一律「已接入」）并写入 req/agreed/src/gov，目录抽屉显示真实源表/治理表/约定更新时间/需求字段数（填「—」显示「待治理登记」占位，未知≠0），数据表 Tab 由填报表名派生源表/治理表（不虚构编码）；build-2.4.16（PRD v1.7.6）需求转向：通用版导入模板 + 指标数值驱动展示（用户指令：不要管之前的需求，现在只是做模板，是为了有些单位无法提供数据，只提供各项指标数值，用于省里做展示用）——模板改为一个通用版文件（六库合一，三工作表：「指标数值」31 列 = 库名称/库类型/牵头单位/覆盖范围 预填 + 27 项指标数值列 + 健康度，供无法提供目录明细数据的单位只填数值；「数据目录」14 列与「字段明细」保留供能提供明细的单位填写）+ 导入按表名定位「数据目录」、支持仅含「指标数值」的文件 + 新增 impMapIndHeader/IND_NUMS 解析「指标数值」sheet（数值校验、库名称匹配六库、示例与未填报行跳过）+ impCommit 写入 IMP_LIB_SUM 并刷新展示（P2 库卡应建目录数 renderLibGrid、P3 renderPopKpis/renderPopMods 六 KPI 与四模块统计、P6 renderAch 五 KPI、P7 renderSceneKpis 四 KPI——厅局填什么就展示什么，未填报指标保持快照）+ 导入回执三区段（指标/目录/字段）；build-2.4.17（PRD v1.8.1 · r21）用户指令五项调整——①各模块明细展示区增加轮播（data-caro 标记 + startCarousel/refreshCarousels：溢出行进/到底回顶/hover 暂停/刷新重建，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮与两处内联「导入台账 Excel」，空白区域 2 秒内连击 3 次浮出隐藏入口面板、再次三连击收起）③数据治理页重构（统计总数 4 卡置顶、下方规则明细，移除「更新机制」Tab 与 renderGovUpdate）④治理成果页左侧板块丰富（填报进度/填报完整度/沉淀文档合计/填报口径卡/贡献 TOP/归集链路）+ 单位填报列表删除恒空「文档 —」项⑤场景服务并入治理成果页（P7 删除、导航 5→4、「规划场景」展示全面移除）+ 导入模板「治理成果」「场景服务」两 sheet 合并为「治理成果与场景服务」（8 列全平台汇总一行）；build-2.4.18（r22）用户指令两项——①资源清单页移除（导航「资源清单」/ P8 page-catalog 整页 / cat* JS 区块与 drawRing3D / 库抽屉「前往资源清单」按钮 / PAGE_META·TOUR 路由项删除；LEDGER_CATS 数据保留供 P2/P3/导入链路）②PRD 重写为研发交付版 v2.0.0（仅保留当前原型对应需求，历史调整不体现） */
 function pageFromHash(){
   const h=(location.hash||'').replace(/^#/,'');
   return (h && h.indexOf('page-')===0 && document.getElementById(h)) ? h : null;

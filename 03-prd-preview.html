@@ -26,17 +26,17 @@ a{color:var(--cyan)}
 </head>
 <body>
 <h1>基础库 · 专题库数据地图 PRD（预览）</h1>
-<div class="sub">PRD v1.8.1 ↔ FA v2.4.3 ↔ 原型 build-2.4.17 ｜ 数据快照 2026-11-16（挂接版内嵌数据）｜ <b>按模块组织的 PRD 全文</b>见 <a href="03-prd.md">03-prd.md</a>，权威文档 §19 / §21–§31 同步增补｜v1.8.1 r21 用户指令五项：① 明细区 data-caro 轮播（溢出行进/到底回顶/hover 暂停，分页区不轮播）② 导入入口隐藏化（空白区 2s 连击 3 次浮出隐藏入口面板）③ 数据治理页统计总数 4 卡置顶、「更新机制」Tab 移除 ④ 治理成果页左侧板块丰富 + 单位填报列表删除恒空「文档 —」项 ⑤ 场景服务不展示「规划场景」并并入治理成果页（P7 删除、PAGES 8 页）+ 导入模板「治理成果」「场景服务」合并为「治理成果与场景服务」8 列全局一行（功能点 43→45：F-051/F-052 新增）</div>
+<div class="sub">PRD v2.0.0（研发交付版） ↔ 原型 build-2.4.18 ｜ 数据快照 2026-11-16（挂接版内嵌数据）｜ <b>研发交付版 PRD 全文</b>见 <a href="03-prd.md">03-prd.md</a>（仅保留当前原型对应需求，不含历史调整）｜r22 用户指令两项：① 资源清单页移除（page-catalog 整页删除、PAGES 8→7）② PRD 重写为研发交付版 v2.0.0（功能点 34 条，历史功能点移出清单）</div>
 
 <div class="cards">
-  <div class="card"><b>8</b><span>页面（P2–P10 对照；P7 并入 P6，P1 入口移除仅存档）</span></div>
-  <div class="card"><b>45</b><span>功能点（F-008–F-052，编号不重排）</span></div>
+  <div class="card"><b>7</b><span>页面（P2–P10 对照；P7 并入 P6、P8 资源清单 r22 移除，P1 仅存档）</span></div>
+  <div class="card"><b>34</b><span>功能点（当前原型对应，编号沿用不重排）</span></div>
   <div class="card"><b>13</b><span>全局规则 R-01–R-13（校验 13/13）</span></div>
   <div class="card"><b>7</b><span>五态状态（3 真实 / 2 Mock / 1 豁免）</span></div>
   <div class="card"><b>74</b><span>DOM 回归断言（TOTAL FAIL: 0）</span></div>
 </div>
 
-<h2>功能清单（45 条 · 节选）</h2>
+<h2>功能清单（34 条 · 节选）</h2>
 <table>
 <thead><tr><th style="width:70px">编号</th><th style="width:60px">页面</th><th>功能点</th><th style="width:60px">优先级</th></tr></thead>
 <tbody>
@@ -45,17 +45,15 @@ a{color:var(--cyan)}
 <tr><td>F-013</td><td>P4</td><td>按供数单位汇总 + 搜索筛选分页</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-021</td><td>P5</td><td>已登记≠已执行（已执行恒为「—」）</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-022</td><td>P6</td><td>五项成果指标（452/7/851/45/12 家；v1.8.1 合并页——场景服务并入本页）</td><td><span class="tag">P0</span></td></tr>
-<tr><td>F-027</td><td>存档</td><td>（v1.8.1 移除存档）原 8 个规划中场景分层——规划场景不再展示，场景服务并入 P6</td><td><span class="tag p1">移除</span></td></tr>
 <tr><td>F-051</td><td>全站</td><td>明细区轮播（v1.8.1 新增）：data-caro 滚动容器定时轮播（溢出行进/到底回顶/hover 暂停/渲染后重建），分页区不轮播</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-052</td><td>P4</td><td>隐藏导入入口（v1.8.1 新增）：页面无直接导入/模板按钮，空白区域 2s 连击 3 次浮出 #hiddenEntry 面板（下载模板/Excel 导入）</td><td><span class="tag">P0</span></td></tr>
-<tr><td>F-030</td><td>P8</td><td>双口径并列 134/71 不调平 + 库别纵向铺满 + 3D 环</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-046</td><td>P4</td><td>导入模板下载弹窗（**v1.8.1 四工作表通用版**——「数据接入」8 列全必填（单位*/覆盖范围*/库名称*/库类型*/库接入数据量*/应建目录数*/库数据字段数*/库接入源表数*，六库一类一行 21 行预填）+「数据治理」6 列全必填（规则编号*/库名称*/库类型*/目标表*/字段*/规则描述*，规则细化到字段）+「治理成果与场景服务」8 列全局一行（原两 sheet 合并）+「字段明细」6 列前 5 必填；统一三行结构（第 1 行说明行含义+格式+必填 / 第 2 行表头 / 第 3 行起数据）；示例数据统一社会信用基础库（示例）；示例行自动跳过；确立原则：所有数据来源都是数据表的导入 / R-12 R-13）</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-047</td><td>P4</td><td>Excel 导入弹窗（v1.8.1 修订；入口隐藏化见 F-052）：仅 .xlsx（CSV 不再支持）→ 四 sheet 按 sheet 名定位解析（S(name)、列名去 * 映射）→ 表头级校验（rows[1] 表头，8/6/8/5 列缺列文件级阻止并提示缺失列）→ 行级校验（数据接入 8 列逐项必填+数值数字+库名称六库匹配；数据治理 6 列逐项必填；合并 sheet 全局一行按键拆分成果 4 项/场景 4 项；字段所属目录须在 LEDGER_CATS 或 DIRS 任一范围登记）→ 示例行统一跳过（任一单元格含「示例」）→ 确认导入：数据接入写 IMP_LIB_SUM（P2 应建目录数 / P3 接入数据量·应建目录数·数据字段数·源表数 per-key 替换）、数据治理写 IMP_GOV_RULES（P5 字段级规则区块即时展示）、合并 sheet 拆分写 IMP_ACH/IMP_SCENE（P6 合并页 KPI 替换）、字段明细合并 items → 填报值替换、未填保持快照；分段回执 / PRD §6）</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-048</td><td>P2</td><td>六库卡右上角虚线环内嵌库元素图标（人物/建筑/盾牌/定位针/双环/文件，不参与统计）</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-049</td><td>P4</td><td>数据接入下钻与全量查询：目录详情三 Tab（数据表 N）+ 目录信息「数据时间范围」+「查询全部已接入数据」弹窗（F-049 / PRD v1.6.0 §5.1 §5.2）</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-050</td><td>P4</td><td>字段明细导入（v1.8.1：通用版模板第 4 个工作表，三行结构、前 5 列必填，示例引用失信被执行人名单（示例））：字段名称去重合并写入「已接入字段」，合并目标扩展为台账目录（LEDGER_CATS）+ 快照目录（DIRS 全部库），未在任一范围登记提示「所属目录未在平台登记」；字段类型英文 varchar/int/decimal/date/datetime / PRD §5.3）</td><td><span class="tag">P0</span></td></tr>
 <tr><td>F-041</td><td>全站</td><td>加载 / 空数据 / 请求失败 / 缺项状态（见五态口径）</td><td><span class="tag">P0</span></td></tr>
-<tr><td colspan="4" style="color:var(--dim)">……完整 45 条见 <b>03-prd-功能清单.md</b></td></tr>
+<tr><td colspan="4" style="color:var(--dim)">……完整 34 条见 <b>03-prd-功能清单.md</b></td></tr>
 </tbody>
 </table>
 
@@ -73,7 +71,7 @@ a{color:var(--cyan)}
 <tr><td>R-08</td><td>供数单位 12 家（应供数 19 家）</td><td>PASS</td></tr>
 <tr><td>R-09</td><td>源表 49 张（28/2/19），健康度 57.1%</td><td>PASS</td></tr>
 <tr><td>R-10</td><td>字段 1,023 项（明细 896 / 需求 982）</td><td>PASS</td></tr>
-<tr><td>R-11</td><td>顶栏 build 标识可见且版本一致（build-2.4.17 / PRD v1.8.1）</td><td>PASS</td></tr>
+<tr><td>R-11</td><td>顶栏 build 标识可见且版本一致（build-2.4.18 / PRD v2.0.0）</td><td>PASS</td></tr>
 <tr><td>R-12</td><td>隐藏导入入口（空白区三连击）+ Excel 导入弹窗 + 导入后预览 + 错误提示规则 + 四工作表通用版模板（v1.8.1：数据接入 / 数据治理 / 治理成果与场景服务（合并） / 字段明细，统一三行结构，示例统一信用库；仅 .xlsx）</td><td>PASS</td></tr>
 <tr><td>R-13</td><td>明细区轮播 + 隐藏导入入口 + 治理页重构 + 场景并入成果页 + 合并 sheet 导入驱动展示（F-048/F-049/F-050/F-051/F-052 / r21：data-caro 轮播断言、隐藏入口三连击断言、#govSummary 置顶与无 updateView/govtab 断言、无 page-scenes 断言、无「文档 —」断言、ACH_KEYS/SCN_KEYS 按键拆分断言、模板 zip 解压断言——四 sheet 名序列 / 8/6/8/6 列带 * 表头 / B 列一类一行（说明行不计）/ 示例标记 / 英文类型枚举）</td><td>PASS</td></tr>
 </tbody>
