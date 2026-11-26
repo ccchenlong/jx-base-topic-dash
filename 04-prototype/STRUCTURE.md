@@ -1,4 +1,4 @@
-# 04-prototype/ 结构说明（build-2.4.22，N6 r26 / PRD v2.0.5 研发交付版）
+# 04-prototype/ 结构说明（build-2.4.23，N6 r27 / PRD v2.0.6 研发交付版）
 
 ## N4 r2 产出形态（用户裁决：原型 + PRD 的结果）
 
@@ -340,3 +340,19 @@ skill 的 N4 规范默认 `index.html + app.js + data-pages-*.js` 三分文件�
 - **fixture 重生成**：`_r21_fixture.xlsx` = 最终版模板复制 + 成果 sheet 第 3 行改正式值（A3=省法院保留 / B–H=930/52/9/830/210000000/6/12 数值单元格）；`_sharedstrings_fixture.xlsx` = 最终版模板拷贝（天然 sharedStrings 覆盖场景）；harness T4c 断言改 ['930','52','9']（去 520 流程节点）
 - **同源端到端 harness 29 项 ALL-PASS**（T3 模板示例行跳过 / T4 成果拆分驱动 P6 / T7 sharedStrings 模板解析 / T8 目录台账 / T9 面包屑全绿）
 - **已知边界**：成果 sheet「数据源单位」列出现后仍为「全平台汇总仅一行」口径（多行填报报错），如需按单位多行汇总需另行确认；P6「流程节点」KPI 不再由模板驱动（用户版已删除该列），保持快照
+
+## PRD v2.0.6 关联（N6 r27，2026-11-26）
+
+**用户指令**：「还是有问题 1、数据总览需要根据各单位填录的这些字段（截图 P3 六张 KPI 卡），最后进行汇总展示 2、基于现在的导入模板去调整」——经确认：①「数据总览」表头字段需调整（非仅改汇总逻辑）②选定方案 A「保留库维度」9 列汇总口径 ③检测到用户 17:02 手动改版模板（删「字段明细」sheet 五→四工作表、「数据接入」加「更新状态/已接入字段」、「治理成果与场景服务」加「场景名称」），确认**以用户手动版为准**（内容零改动，仅改「数据总览」表头）。
+
+### r27 数据总览 9 列汇总口径（build-2.4.23）
+
+- **模板改造（XML 级，仅 sheet1 + sharedStrings，其余 3 sheet 用户内容零改动、样式/pane/ht 全保留）**：「数据总览」9 列表头 = 数据源单位* / 覆盖范围* / 库名称* / 库类型* / 接入数据量*（条）/ 数据字段*（项）/ 治理规则*（条）/ 累计订阅次数*（次）/ 接口调用次数*（次）；说明行 9 条新文案（含「导入后按列求和，汇总展示为『XX』核心指标」「供数单位按本列去重计数汇总」「请勿重复填写同一笔数据」）；示例行 = 省法院/失信名单/社会信用基础库（示例）/基础库/210000000/612/117/746/125740861；sharedStrings 复用已有 si（文本相同即复用）+ 追加新增，count/uniqueCount 重算
+- **index.html 导入链路**：①Sheet1 解析 9 列新表头 + ACC_VALS 五键（records/fields/rules/subs/calls）；②全局新增 `IMP_OVERVIEW`——impCommit 对有效行按列求和（ovSum）+ 数据源单位去重计数（ovUnits）+ 每列 has 标记 → `IMP_OVERVIEW={rows,units,...ovSum,has}`；③popKpisRows() 六卡重写：五项数值卡读 `gv(k,fb)`（has[k] 才替换，否则保持快照、未知≠0），副标「各单位填录汇总 · N 行按列求和」；供数单位卡 = 去重数 + 副标「数据源单位去重计数」；TOP5 卡 = calls 汇总值 + 副标「接口调用次数求和」；④IMP_LIB_SUM 保留按库名写入（新键不冲突，P2 库卡应建目录数 renderLibGrid / P3 renderPopMods libSrcTables 自然回退快照）；⑤Sheet2 可选列 `optCol` 读「更新状态」（ex.updStatus）与「已接入字段」（分号拆分合并目录 items，替代已删除的「字段明细」sheet）；⑥parseGlobal 新增「场景名称」可选文本列（`key==='sceneNames'`，缺列兼容旧 8 列文件）；⑦预览/回执表改 9 列新表头 + Σ 汇总行（五项求和 + 供数单位去重数）；⑧弹窗/imp-tip/错误文案改四工作表口径；⑨版本 4 处升 build-2.4.23 + changelog r27
+
+### r27 验证记录
+
+- `verify-rules.js` **13/13 PASS**（R-11 升 build-2.4.23 / PRD v2.0.6；R-12/R-13 升四工作表口径；R-13 模板断言重写：4 sheet 名序列、sheet1 9 列新表头 + 按列求和/去重计数/勿重复填写说明、sheet2 9 列含 更新状态/已接入字段、sheet4 9 列含 场景名称、删 sheet5 断言、样式断言保留；源码断言新增：IMP_OVERVIEW / if(accN)IMP_OVERVIEW= / ovUnits.size / key==='sceneNames' / const optCol= / itemsRaw / gv has 判断；imported 断言改 `imported:true});` + `catItems+=fldItems.length;catNew++`）
+- **fixture 重生成**：`_r21_fixture.xlsx` = 新模板复制 + sheet1 示例行替换为 3 行有效汇总数据（省法院×2 + 省发改委×1 → 求和 6,000,000/600/100/800/18,000,000、供数单位去重 2 家）+ sheet4 第 3 行正式值（930/52/9/830/210000000/6/12 + 场景名称文本，inlineStr 文本 + 数值单元格混排）；`_sharedstrings_fixture.xlsx` = 新模板拷贝（sharedStrings 覆盖场景）
+- **同源端到端 harness 33 项 ALL-PASS**：新增 T10a（P3 六卡 data-to = ['6000000','2','600','100','800','18000000']）/ T10b（六卡副标含「各单位填录汇总」×6 +「按列求和」×4 +「接口调用次数求和」+「数据源单位去重计数」）/ T10c（副标含「3 行按列求和」）
+- **已知边界**：①新 9 列表头无「应建目录数/接入源表数」列 → P2 库卡应建目录数与 P3 模块统计（接入源表）导入后保持快照（IMP_LIB_SUM 仅记录 libName/libType/libUnit/libScope + 五项新数值键，libCatalogs/libSrcTables 为空自然回退）②「数据总览」为全表按列汇总（跨库跨单位求和），不再按单库替换库级指标 ③「字段明细」sheet 已删除，字段登记由「数据接入」sheet「已接入字段」列（分号分隔）承接

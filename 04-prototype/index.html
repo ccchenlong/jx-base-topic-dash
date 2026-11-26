@@ -709,7 +709,7 @@ main{position:absolute;left:0;top:calc(var(--top) + var(--sub));width:100%;heigh
     </nav>
     <div class="meta">
       <div class="snap">数据快照<b>2026-11-16</b></div>
-      <div class="buildtag" id="buildTag">build-2.4.22</div>
+      <div class="buildtag" id="buildTag">build-2.4.23</div>
       <div class="clock"><b id="clock">15:41:02</b><span id="today">2026.11.17 星期二</span></div>
       <button class="iconbtn" id="tourBtn" title="展陈巡播">▶</button>
       <button class="iconbtn" id="fullBtn" title="全屏">⛶</button>
@@ -2010,6 +2010,8 @@ const LIB_ICONS={
 };
 /* v1.7.6（r19）：库级指标汇总——导入「指标数值」表后按库名称写入；厅局填什么就展示什么，未填报指标保持快照 */
 const IMP_LIB_SUM={};
+/* r27（PRD v2.0.6）：「数据总览」sheet 各单位填录汇总——六项核心指标按列求和、供数单位按「数据源单位」去重计数，驱动 P3 数据总览六张 KPI 卡；未导入保持快照 */
+let IMP_OVERVIEW=null;
 const libCardFn=l=>{
   const sample=CATALOGS.filter(c=>c.lib===l.key);
   const catN=(IMP_LIB_SUM[l.key]&&IMP_LIB_SUM[l.key].libCatalogs!=null)?Number(IMP_LIB_SUM[l.key].libCatalogs):l.catalogs;
@@ -2087,20 +2089,20 @@ function openLib(key){
 }
 
 /* ================= population ================= */
-/* v1.7.6（r19）：P3 库级 KPI 函数化——导入「指标数值」表后按填报值替换展示（厅局填什么就展示什么），未填报保持快照 */
-/* v1.8.0（r20）：P3 库级 KPI——导入「数据接入」sheet 后 接入数据量/数据字段数 按填报值替换；
-   供数单位 / 治理规则 / 订阅 / TOP5 无导入来源，保持平台快照（2026-11-16，未知≠0） */
+/* r27（PRD v2.0.6）：P3 数据总览六张 KPI 卡 =「数据总览」sheet 各单位填录汇总——
+   接入数据量/数据字段/治理规则/累计订阅次数/接口调用次数按列求和；供数单位按「数据源单位」去重计数；
+   TOP5 接口调用合计取接口调用次数汇总值；未导入或该字段全部未填则保持平台快照（2026-11-16，未知≠0） */
 function popKpisRows(){
-  const s=IMP_LIB_SUM.pop,f=n=>Number(n).toLocaleString('en-US');
-  const gv=(k,fb)=>(s&&s[k]!=null)?Number(s[k]):fb;
-  const impAcc=s&&s.libRecords!=null;
+  const o=IMP_OVERVIEW,f=n=>Number(n).toLocaleString('en-US');
+  const gv=(k,fb)=>(o&&o.has[k])?o[k]:fb;
+  const sumTip=k=>'各单位填录汇总 · '+o.rows+' 行按列求和';
   return [
-    {l:'接入数据量',v:gv('libRecords',AUTH.detailRecordCount),u:'条',s:impAcc?'库级汇总 · 单位填报':'人口库台账 · 目录明细实测',dec:0},
-    {l:'供数单位',v:AUTH.providerCount,u:'家',s:'应供数 '+AUTH.requiredProviderCount+' 家 · 已供数 '+AUTH.providerCount+' 家'},
-    {l:'数据字段',v:gv('libFields',AUTH.actualFieldCount),u:'项',s:(s&&s.libFields!=null)?'库级汇总 · 单位填报':'明细 '+f(AUTH.detailFieldCount)+' · 需求 '+f(AUTH.requiredFieldCount)},
-    {l:'治理规则',v:AUTH.registeredRules,u:'条',s:'基础 '+AUTH.basicRules+' · 业务 '+AUTH.businessRules},
-    {l:'累计订阅次数',v:AUTH.subscription,u:'次',s:'既有数据服务订阅累计'},
-    {l:'TOP5 接口调用合计',v:TOP5_CALLS,u:'次',s:'既有服务接口 · 部分明细',dec:0}
+    {l:'接入数据量',v:gv('records',AUTH.detailRecordCount),u:'条',s:(o&&o.has.records)?sumTip('records'):'人口库台账 · 目录明细实测',dec:0},
+    {l:'供数单位',v:(o&&o.has.units)?o.units:AUTH.providerCount,u:'家',s:(o&&o.has.units)?'各单位填录汇总 · 数据源单位去重计数':'应供数 '+AUTH.requiredProviderCount+' 家 · 已供数 '+AUTH.providerCount+' 家'},
+    {l:'数据字段',v:gv('fields',AUTH.actualFieldCount),u:'项',s:(o&&o.has.fields)?sumTip('fields'):'明细 '+f(AUTH.detailFieldCount)+' · 需求 '+f(AUTH.requiredFieldCount)},
+    {l:'治理规则',v:gv('rules',AUTH.registeredRules),u:'条',s:(o&&o.has.rules)?sumTip('rules'):'基础 '+AUTH.basicRules+' · 业务 '+AUTH.businessRules},
+    {l:'累计订阅次数',v:gv('subs',AUTH.subscription),u:'次',s:(o&&o.has.subs)?sumTip('subs'):'既有数据服务订阅累计'},
+    {l:'TOP5 接口调用合计',v:gv('calls',TOP5_CALLS),u:'次',s:(o&&o.has.calls)?'各单位填录汇总 · 接口调用次数求和':'既有服务接口 · 部分明细',dec:0}
   ];
 }
 function renderPopKpis(){
@@ -2182,7 +2184,7 @@ function renderAllTbl(){
     </tbody></table>`:'<div class="empty"><div>未找到匹配的数据表</div></div>';
 }
 function openAllDataModal(){
-  openModal(`<h2>全部已接入数据</h2><div class="msub">数据接入 · 全量数据表查询（F-049） · build-2.4.22</div>
+  openModal(`<h2>全部已接入数据</h2><div class="msub">数据接入 · 全量数据表查询（F-049） · build-2.4.23</div>
     <div class="mbody">
       <div class="search" style="margin-bottom:10px">⌕ <input id="allTblSearch" placeholder="搜索数据表名称 / 所属目录 / 数据源单位" oninput="renderAllTbl()"></div>
       <div id="allTblMeta" class="imp-tip" style="margin-bottom:8px"></div>
@@ -2394,10 +2396,10 @@ const IND_NUMS=[['libCatalogs','应建目录数'],['libRecords','库接入数据
 /* ---- 导入弹窗（N4 r10 · F-047 v1.5.0：抽屉改居中弹窗 + 导入后结果预览 + 错误提示规则见 03-prd.md §6） ---- */
 let impState=null;
 function openTplModal(){
-  openModal(`<h2>下载导入模板</h2><div class="msub">数据接入 · 通用版导入模板（F-046） · build-2.4.22</div>
+  openModal(`<h2>下载导入模板</h2><div class="msub">数据接入 · 通用版导入模板（F-046） · build-2.4.23</div>
     <div class="mbody">
-      <div class="imp-tip" style="margin-bottom:14px">通用版导入模板（五工作表）：<b>「数据总览」</b>（8 列全部必填：单位 / 覆盖范围 / 库名称 / 库类型 / 库接入数据量 / 应建目录数 / 库数据字段数 / 库接入源表数；覆盖范围一类一行，按库名称匹配驱动大屏指标）、<b>「数据接入」</b>（目录级明细 7 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间，前 5 列必填；按「单位+目录」登记目录台账，已登记目录按填报值更新、新目录登记为导入目录）、<b>「数据治理」</b>（6 列全部必填：数据源单位 / 库名称 / 库类型 / 目标表 / 字段 / 规则描述，规则细化到字段）、<b>「治理成果与场景服务」</b>（全平台汇总一行 8 列：数据源单位 / 治理字段次数 / 结果表数量 / 沉淀文档数 / 累计订阅次数 / 接口调用次数 / 服务接口数 / 规划场景数）、<b>「字段明细」</b>（8 列：所属数据目录 / 数据源单位 / 库名称 / 库类型 / 字段名称 / 字段类型 / 字段长度 / 字段说明，前 6 列必填；所属数据目录须与平台已登记目录或「数据接入」sheet 填报目录一致）。<b>模板第 1 行为说明行（灰字、自动换行、加高显示完整说明）、第 2 行为表头（蓝底白字、冻结前两行），第 3 行起为数据；示例数据含「示例」标记（任一单元格含「示例」的行导入自动跳过，正式填报覆盖第三行即可）。</b>各列填报口径详见模板内说明行。</div>
-      <a class="tpl-link" style="margin-bottom:8px" href="templates/导入模板-通用版.xlsx" download>导入模板 - 通用版（六库合一 · 数据总览 + 数据接入 + 数据治理 + 治理成果与场景服务 + 字段明细）<span>下载 ↓</span></a>
+      <div class="imp-tip" style="margin-bottom:14px">通用版导入模板（四工作表）：<b>「数据总览」</b>（9 列全部必填：数据源单位 / 覆盖范围 / 库名称 / 库类型 / 接入数据量（条）/ 数据字段（项）/ 治理规则（条）/ 累计订阅次数（次）/ 接口调用次数（次）；一单位一库一类别一行、各数值列填本行数值，导入后五项数值按列求和汇总驱动「数据总览」页六项核心指标、供数单位按数据源单位去重计数，请勿重复填写同一笔数据）、<b>「数据接入」</b>（目录级明细 9 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间 / 更新状态 / 已接入字段，前 5 列必填；按「单位+目录」登记目录台账，已登记目录按填报值更新、新目录登记为导入目录；「已接入字段」以分号分隔，导入后合并至目录台账「已接入字段」）、<b>「数据治理」</b>（6 列全部必填：数据源单位 / 库名称 / 库类型 / 目标表 / 字段 / 规则描述，规则细化到字段）、<b>「治理成果与场景服务」</b>（数值列全平台汇总一行 9 列：数据源单位 / 治理字段次数 / 结果表数量 / 沉淀文档数 / 累计订阅次数 / 接口调用次数 / 服务接口数 / 规划场景数 / 场景名称）。<b>模板第 1 行为说明行（灰字、自动换行、加高显示完整说明）、第 2 行为表头（蓝底白字、冻结前两行），第 3 行起为数据；示例数据含「示例」标记（任一单元格含「示例」的行导入自动跳过，正式填报覆盖第三行即可）。</b>各列填报口径详见模板内说明行。</div>
+      <a class="tpl-link" style="margin-bottom:8px" href="templates/导入模板-通用版.xlsx" download>导入模板 - 通用版（四工作表 · 数据总览 + 数据接入 + 数据治理 + 治理成果与场景服务）<span>下载 ↓</span></a>
       <div class="imp-tip" style="margin-top:14px">双口径提示：导入目录计入「台账态 · 明细」，与「清单态 · 应建 134 条」并列展示、不参与调平（R-01）；空值按「未知≠0」口径显示为「—」、未填报指标保持现有展示（R-02）。</div>
     </div>
     <div class="mfoot"><button class="backbtn" onclick="closeModal()">关闭</button></div>`);
@@ -2406,7 +2408,7 @@ function openImportModal(presetKey){
   impState=null;
   const libs=IMP_LIBS();
   const def=presetKey&&libs.some(l=>l.key===presetKey)?presetKey:'pop';
-  openModal(`<h2>Excel 导入</h2><div class="msub">数据接入 · 指标数值与目录台账导入（F-047） · build-2.4.22</div>
+  openModal(`<h2>Excel 导入</h2><div class="msub">数据接入 · 指标数值与目录台账导入（F-047） · build-2.4.23</div>
     <div class="mbody">
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
         <span style="font-size:12px;color:var(--muted)">目标库</span>
@@ -2423,7 +2425,7 @@ function openImportModal(presetKey){
     <div class="mfoot">
       <button class="backbtn" id="impGo" disabled style="color:#fff;background:#1677FF;border-color:#1677FF">确认导入</button>
       <button class="backbtn" onclick="closeModal()">取消</button>
-      <span class="imp-tip" style="margin-left:auto">指标数值按库名称匹配入库（只填数值即可）；数据接入目录前 5 列必填、缺失行标红不导入；示例数据自动跳过；导入仅内存态，刷新还原快照</span>
+      <span class="imp-tip" style="margin-left:auto">数据总览五项数值列按列求和汇总、供数单位按数据源单位去重计数；数据接入目录前 5 列必填、缺失行标红不导入；示例数据自动跳过；导入仅内存态，刷新还原快照</span>
     </div>`);
   $('#impFile').onchange=impOnFile;
   $('#impGo').onclick=impCommit;
@@ -2438,9 +2440,11 @@ async function impOnFile(e){
   try{
     let parsed;
     if(/\.xlsx$/i.test(f.name))parsed=await impParseXlsx(await f.arrayBuffer());
-    else throw new Error('仅支持 .xlsx 文件（通用版导入模板为五工作表 xlsx）');
-    /* v1.8.1（r21）→ r24 五工作表模板（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）——原「数据接入」8 列改名「数据总览」，新增「数据接入」目录级明细 sheet（用户指令 r24）
-       每个 sheet 第 1 行为说明行、第 2 行为表头（按列名匹配）、第 3 行起为数据；
+    else throw new Error('仅支持 .xlsx 文件（通用版导入模板为四工作表 xlsx）');
+    /* v1.8.1（r21）→ r24 五工作表模板 → r27 用户最终版四工作表模板（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务）——
+       r27 变更：「数据总览」表头改 9 列汇总口径（数据源单位/覆盖范围/库名称/库类型/接入数据量/数据字段/治理规则/累计订阅次数/接口调用次数）；
+       删除「字段明细」sheet，其功能由「数据接入」新增的「已接入字段」列（分号分隔）承接；「数据接入」新增「更新状态」列、「治理成果与场景服务」新增「场景名称」列（用户手动改版为准） */
+    /* 每个 sheet 第 1 行为说明行、第 2 行为表头（按列名匹配）、第 3 行起为数据；
        任一单元格含「示例」的行整行自动跳过（模板示例为信用库）；说明行 / 表头行不参与数据解析 */
     const S=name=>parsed.sheets.includes(name)?(parsed.sheetRows(name)||[]):null;
     const impIdx=hdr=>{const norm=x=>String(x||'').replace(/\*/g,'').trim();const idx={};hdr.forEach((h,i)=>idx[norm(h)]=i);return idx;};
@@ -2453,39 +2457,45 @@ async function impOnFile(e){
       if(miss.length)throw new Error('「'+name+'」表头缺少「'+miss.join('」「')+'」列，请按标准模板填写全部要素列（缺列无法导入）');
       return idx;
     };
-    /* ---- Sheet1「数据总览」（r24 改名，原「数据接入」）：8 列全部必填；覆盖范围一类一行（同库数值仅首行填一次，其余类别行数值空自动跳过） ---- */
+    /* ---- Sheet1「数据总览」（r27 用户最终版：9 列汇总口径）——数据源单位 / 覆盖范围 / 库名称 / 库类型 / 接入数据量 / 数据字段 / 治理规则 / 累计订阅次数 / 接口调用次数；
+       一单位一库一类别一行，各数值列填本行数值，导入后按列求和汇总（六项核心指标）+ 数据源单位去重计数（供数单位） ---- */
     const accs=[],accSkipped=[];
     const accRows=S('数据总览');
     if(accRows){
-      const idx=hdrCheck(accRows,'数据总览',['单位','覆盖范围','库名称','库类型','库接入数据量','应建目录数','库数据字段数','库接入源表数']);
-      const ACC_VALS=[['库接入数据量','libRecords'],['应建目录数','libCatalogs'],['库数据字段数','libFields'],['库接入源表数','libSrcTables']];
+      const idx=hdrCheck(accRows,'数据总览',['数据源单位','覆盖范围','库名称','库类型','接入数据量','数据字段','治理规则','累计订阅次数','接口调用次数']);
+      const ACC_VALS=[['接入数据量','records'],['数据字段','fields'],['治理规则','rules'],['累计订阅次数','subs'],['接口调用次数','calls']];
       accRows.slice(2).forEach((r,i)=>{
         const get=k=>String(r[idx[k]]==null?'':r[idx[k]]).trim();
         if(!r.some(x=>String(x||'').trim()))return;
-        const rec={line:i+3,unit:get('单位'),scope:get('覆盖范围'),lib:get('库名称'),type:get('库类型'),vals:{},filled:0};
+        const rec={line:i+3,unit:get('数据源单位'),scope:get('覆盖范围'),lib:get('库名称'),type:get('库类型'),vals:{},filled:0};
         if(rowSkip(r)){accSkipped.push(rec.line);return;}
         ACC_VALS.forEach(([cn,key])=>{const v=get(cn);if(v==='')return;
           if(isNaN(num(v)))rec.bad=(rec.bad||[]).concat(cn+'应为数字');else{rec.vals[key]=num(v);rec.filled++;}});
         if(rec.filled===0){accSkipped.push(rec.line);return;}
         const errs=rec.bad||[];
         if(!rec.lib)errs.push('缺库名称');else if(!LIBS.some(l=>l.name===rec.lib))errs.push('库名称应为 '+LIBS.map(l=>l.name).join('/'));
-        if(!rec.unit)errs.push('缺单位');
+        if(!rec.unit)errs.push('缺数据源单位');
         if(!rec.scope)errs.push('缺覆盖范围');
         if(!rec.type)errs.push('缺库类型');
         rec.ok=!errs.length;rec.errs=errs;
         accs.push(rec);
       });
     }
-    /* ---- Sheet2「数据接入」（r24 新增，目录级明细）：7 列；数据源单位 / 数据目录 / 字段数 / 数据量 / 更新频率 必填，更新频率枚举校验，数据时间范围与最后更新时间选填 ---- */
+    /* ---- Sheet2「数据接入」（r24 新增目录级明细；r27 用户最终版 9 列：新增「更新状态」「已接入字段」两列，替代已删除的「字段明细」sheet）：
+       数据源单位 / 数据目录 / 字段数 / 数据量 / 更新频率 必填，更新频率枚举校验，数据时间范围与最后更新时间选填；
+       「已接入字段」按分号拆分写入目录台账 items，「更新状态」登记目录更新状态（两列可选、缺失不报错） ---- */
     const impCats=[],impCatSkipped=[];
     const impCatRows=S('数据接入');
     const impCatKeys=new Set();
     if(impCatRows){
       const idx=hdrCheck(impCatRows,'数据接入',['数据源单位','数据目录','字段数','数据量','更新频率','数据时间范围','最后更新时间']);
+      const hdr=impIdx(impCatRows[1]);
+      const optCol=(r,k)=>hdr[k]==null?'':String(r[hdr[k]]==null?'':r[hdr[k]]).trim();
       impCatRows.slice(2).forEach((r,i)=>{
         const get=k=>String(r[idx[k]]==null?'':r[idx[k]]).trim();
         if(!r.some(x=>String(x||'').trim()))return;
-        const rec={line:i+3,dept:get('数据源单位'),cat:get('数据目录'),fields:get('字段数'),rows:get('数据量'),freq:get('更新频率'),trange:get('数据时间范围'),last:get('最后更新时间')};
+        const rec={line:i+3,dept:get('数据源单位'),cat:get('数据目录'),fields:get('字段数'),rows:get('数据量'),freq:get('更新频率'),trange:get('数据时间范围'),last:get('最后更新时间'),
+          updStatus:optCol(r,'更新状态'),itemsRaw:optCol(r,'已接入字段')};
         if(rowSkip(r)){impCatSkipped.push(rec.line);return;}
         const errs=[];
         if(!rec.dept)errs.push('缺数据源单位');
@@ -2516,20 +2526,20 @@ async function impOnFile(e){
         grules.push(rec);
       });
     }
-    /* ---- Sheet4「治理成果与场景服务」（r21 合并，原「治理成果」「场景服务」两 sheet 合一）：8 列全平台汇总一行（示例行跳过；多余有效行标红） ---- */
+    /* ---- Sheet4「治理成果与场景服务」（r21 合并，原「治理成果」「场景服务」两 sheet 合一）：数值列全平台汇总一行（示例行跳过；多余有效行标红）；r27：新增「场景名称」可选文本列（用户手动版），缺列兼容旧 8 列文件 ---- */
     const parseGlobal=(name,cols)=>{
       const out={rows:[],skipped:[]};
       const gRows=S(name);
       if(!gRows)return out;
-      const idx=hdrCheck(gRows,name,cols.map(c=>c[0]));
+      const idx=hdrCheck(gRows,name,cols.filter(c=>c[2]!=='opt').map(c=>c[0]));
       gRows.slice(2).forEach((r,i)=>{
         const get=k=>String(r[idx[k]]==null?'':r[idx[k]]).trim();
         if(!r.some(x=>String(x||'').trim()))return;
         if(rowSkip(r)){out.skipped.push(i+3);return;}
         const rec={line:i+3,vals:{},errs:[]};
-        cols.forEach(([cn,key])=>{const v=get(cn);if(v==='')return;
-          /* r26 最终版模板：数据源单位为文本列，不做数字校验 */
-          if(key==='unit'){rec.vals.unit=v;return;}
+        cols.forEach(([cn,key])=>{if(idx[cn]==null)return;const v=String(r[idx[cn]]==null?'':r[idx[cn]]).trim();if(v==='')return;
+          /* r26 最终版模板：数据源单位为文本列，不做数字校验；r27：场景名称同为文本列 */
+          if(key==='unit'||key==='sceneNames'){rec.vals[key]=v;return;}
           if(isNaN(num(v)))rec.errs.push(cn+'应为数字');else rec.vals[key]=num(v);});
         if(!Object.keys(rec.vals).length&&!rec.errs.length)return;
         if(out.rows.length)rec.errs.push(name+'为全平台汇总，仅填一行，本行未导入');
@@ -2538,7 +2548,7 @@ async function impOnFile(e){
       });
       return out;
     };
-    const gscP=parseGlobal('治理成果与场景服务',[['数据源单位','unit'],['治理字段次数','govField'],['结果表数量','govTable'],['沉淀文档数','govDoc'],['累计订阅次数','sub'],['接口调用次数','calls'],['服务接口数','apis'],['规划场景数','scenes']]);
+    const gscP=parseGlobal('治理成果与场景服务',[['数据源单位','unit'],['治理字段次数','govField'],['结果表数量','govTable'],['沉淀文档数','govDoc'],['累计订阅次数','sub'],['接口调用次数','calls'],['服务接口数','apis'],['规划场景数','scenes'],['场景名称','sceneNames','opt']]);
     /* ---- Sheet5「字段明细」：所属目录须与平台已登记目录或「数据接入」sheet 填报目录一致（「数据目录」sheet 已移除，目录清单用平台现有数据） ---- */
     const flds=[],fldSkipped=[];
     const fldRows=S('字段明细');
@@ -2567,7 +2577,7 @@ async function impOnFile(e){
       });
     }
     if(!parsed.sheets.some(n=>['数据总览','数据接入','数据治理','治理成果与场景服务','字段明细'].includes(n)))
-      throw new Error('未识别到标准工作表（应为「数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细」五工作表，请使用标准通用版模板）');
+      throw new Error('未识别到标准工作表（应为「数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务」四工作表，请使用标准通用版模板）');
     const aOk=accs.filter(r=>r.ok).length,aBad=accs.length-aOk;
     const catOk=impCats.filter(r=>r.ok).length;
     const gOk=grules.filter(r=>r.ok).length,gBad=grules.length-gOk;
@@ -2575,41 +2585,45 @@ async function impOnFile(e){
     const fOk=flds.filter(r=>r.ok).length,fBad=flds.length-fOk;
     const skipN=accSkipped.length+impCatSkipped.length+govSkipped.length+gscP.skipped.length+fldSkipped.length;
     impState={accs,accSkipped,impCats,impCatSkipped,grules,govSkipped,gscP,flds,fldSkipped};
+    /* r27：数据总览预览汇总行——有效行五项数值列求和 + 数据源单位去重（与 impCommit 汇总口径一致） */
+    const accOkR=accs.filter(r=>r.ok),accSum={},accUnits=new Set();
+    accOkR.forEach(r=>{if(r.unit)accUnits.add(r.unit);['records','fields','rules','subs','calls'].forEach(k=>{if(r.vals[k]!=null)accSum[k]=(accSum[k]||0)+r.vals[k];});});
     $('#impStatus').innerHTML='解析完成：'
       +(accs.length?`数据总览 ${accs.length} 行（有效 <span class="imp-ok">${aOk}</span> · 异常 <span class="imp-err">${aBad}</span>） · `:(accRows?'':'未含「数据总览」工作表 · '))
       +(impCats.length?`数据接入目录 ${impCats.length} 行（有效 <span class="imp-ok">${catOk}</span> · 异常 <span class="imp-err">${impCats.length-catOk}</span>） · `:(impCatRows?'':'未含「数据接入」工作表 · '))
       +(grules.length?`治理规则 ${grules.length} 行（有效 <span class="imp-ok">${gOk}</span> · 异常 <span class="imp-err">${gBad}</span>） · `:(govRows?'':'未含「数据治理」工作表 · '))
       +(gscP.rows.length?`治理成果与场景服务 ${gscP.rows.length} 行（全平台汇总） · `:(S('治理成果与场景服务')?'':'未含「治理成果与场景服务」工作表 · '))
-      +(flds.length?`字段明细 ${flds.length} 行（有效 <span class="imp-ok">${fOk}</span> · 异常 <span class="imp-err">${fBad}</span>） · `:(fldRows?'':'未含「字段明细」工作表 · '))
+      +(flds.length?`字段明细 ${flds.length} 行（有效 <span class="imp-ok">${fOk}</span> · 异常 <span class="imp-err">${fBad}</span>） · `:'')
       +`自动跳过示例/说明/未填报行 ${skipN} 行`
       +((aBad||gBad||fBad||impCats.some(r=>!r.ok)||gscP.rows.some(r=>!r.ok))?'<br>异常行标红原因见预览表，可修正后重新上传':'');
     $('#impPreview').innerHTML=
-      (accs.length?`<div class="dsec" style="margin-top:2px">数据总览预览（${accs.length} 行）</div>
-        <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:16%">单位</th><th style="width:14%">覆盖范围</th><th style="width:20%">库名称</th><th>库类型</th><th>接入数据量</th><th>应建目录数</th><th>数据字段数</th><th>源表数</th><th>校验</th></tr></thead><tbody>
-        ${accs.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td><td>${esc(r.unit)}</td><td>${esc(r.scope)}</td><td class="name">${esc(r.lib)}</td><td>${esc(r.type)}</td><td>${r.vals.libRecords!=null?r.vals.libRecords.toLocaleString('en-US'):'—'}</td><td>${r.vals.libCatalogs!=null?r.vals.libCatalogs:'—'}</td><td>${r.vals.libFields!=null?r.vals.libFields:'—'}</td><td>${r.vals.libSrcTables!=null?r.vals.libSrcTables:'—'}</td><td>${r.ok?'<span class="imp-ok">有效</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
+      (accs.length?`<div class="dsec" style="margin-top:2px">数据总览预览（${accs.length} 行 · 一单位一库一类别一行，五项数值列按列求和、供数单位按数据源单位去重计数）</div>
+        <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:13%">数据源单位</th><th style="width:11%">覆盖范围</th><th style="width:17%">库名称</th><th style="width:9%">库类型</th><th>接入数据量（条）</th><th>数据字段（项）</th><th>治理规则（条）</th><th>累计订阅（次）</th><th>接口调用（次）</th><th>校验</th></tr></thead><tbody>
+        ${accs.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td><td>${esc(r.unit)}</td><td>${esc(r.scope)}</td><td class="name">${esc(r.lib)}</td><td>${esc(r.type)}</td><td>${r.vals.records!=null?r.vals.records.toLocaleString('en-US'):'—'}</td><td>${r.vals.fields!=null?r.vals.fields.toLocaleString('en-US'):'—'}</td><td>${r.vals.rules!=null?r.vals.rules.toLocaleString('en-US'):'—'}</td><td>${r.vals.subs!=null?r.vals.subs.toLocaleString('en-US'):'—'}</td><td>${r.vals.calls!=null?r.vals.calls.toLocaleString('en-US'):'—'}</td><td>${r.ok?'<span class="imp-ok">有效</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
+        ${accOkR.length?`<tr style="font-weight:600;background:rgba(22,119,255,.05)"><td class="dim num">Σ</td><td colspan="4">有效 ${accOkR.length} 行 · 供数单位 ${accUnits.size} 家（去重）</td><td>${(accSum.records||0).toLocaleString('en-US')}</td><td>${(accSum.fields||0).toLocaleString('en-US')}</td><td>${(accSum.rules||0).toLocaleString('en-US')}</td><td>${(accSum.subs||0).toLocaleString('en-US')}</td><td>${(accSum.calls||0).toLocaleString('en-US')}</td><td><span class="imp-ok">按列求和</span></td></tr>`:''}
         </tbody></table>`:'')
       +(impCats.length?`<div class="dsec" style="margin-top:10px">数据接入目录预览（${impCats.length} 行）</div>
-        <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:18%">数据源单位</th><th style="width:24%">数据目录</th><th style="width:9%">字段数</th><th style="width:13%">数据量</th><th style="width:9%">更新频率</th><th style="width:13%">数据时间范围</th><th style="width:10%">最后更新时间</th><th>校验</th></tr></thead><tbody>
-        ${impCats.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td><td>${esc(r.dept)}</td><td class="name">${esc(r.cat)}</td><td>${r.fields!==''&&r.fields!=null&&r.fields!==undefined&&!isNaN(num(r.fields))?num(r.fields).toLocaleString('en-US'):'—'}</td><td>${r.rows!==''&&r.rows!=null&&r.rows!==undefined&&!isNaN(num(r.rows))?num(r.rows).toLocaleString('en-US'):'—'}</td><td>${esc(r.freq)}</td><td>${esc(r.trange||'—')}</td><td>${esc(r.last||'—')}</td><td>${r.ok?'<span class="imp-ok">有效</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
+        <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:16%">数据源单位</th><th style="width:20%">数据目录</th><th style="width:8%">字段数</th><th style="width:11%">数据量</th><th style="width:8%">更新频率</th><th style="width:11%">数据时间范围</th><th style="width:9%">最后更新时间</th><th style="width:7%">更新状态</th><th style="width:10%">已接入字段</th><th>校验</th></tr></thead><tbody>
+        ${impCats.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td><td>${esc(r.dept)}</td><td class="name">${esc(r.cat)}</td><td>${r.fields!==''&&r.fields!=null&&r.fields!==undefined&&!isNaN(num(r.fields))?num(r.fields).toLocaleString('en-US'):'—'}</td><td>${r.rows!==''&&r.rows!=null&&r.rows!==undefined&&!isNaN(num(r.rows))?num(r.rows).toLocaleString('en-US'):'—'}</td><td>${esc(r.freq)}</td><td>${esc(r.trange||'—')}</td><td>${esc(r.last||'—')}</td><td>${esc(r.updStatus||'—')}</td><td class="dim" style="font-size:11px">${esc(r.itemsRaw||'—')}</td><td>${r.ok?'<span class="imp-ok">有效</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
         </tbody></table>`:'')
       +(grules.length?`<div class="dsec" style="margin-top:10px">治理规则预览（字段级 · ${grules.length} 行）</div>
         <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:13%">数据源单位</th><th style="width:16%">库名称</th><th style="width:17%">目标表</th><th style="width:12%">字段</th><th style="width:26%">规则描述</th><th>校验</th></tr></thead><tbody>
         ${grules.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td><td class="name">${esc(r.dept)}</td><td>${esc(r.lib)}</td><td class="muted" style="font-size:11px">${esc(r.table)}</td><td>${esc(r.field)}</td><td class="dim" style="font-size:11px">${esc(r.desc)}</td><td>${r.ok?'<span class="imp-ok">登记</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
         </tbody></table>`:'')
-      +(gscP.rows.length?`<div class="dsec" style="margin-top:10px">治理成果与场景服务预览（全平台汇总一行）</div>
-        <table class="dtable"><thead><tr><th style="width:34px">行</th><th>数据源单位</th><th>治理字段次数</th><th>结果表数量</th><th>沉淀文档数</th><th>累计订阅次数</th><th>接口调用次数</th><th>服务接口数</th><th>规划场景数</th><th>校验</th></tr></thead><tbody>
-        ${gscP.rows.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td>${['unit','govField','govTable','govDoc','sub','calls','apis','scenes'].map(k=>`<td>${r.vals[k]!=null?esc(String(r.vals[k])):'—'}</td>`).join('')}<td>${r.ok?'<span class="imp-ok">有效</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
+      +(gscP.rows.length?`<div class="dsec" style="margin-top:10px">治理成果与场景服务预览（数值列全平台汇总一行）</div>
+        <table class="dtable"><thead><tr><th style="width:34px">行</th><th>数据源单位</th><th>治理字段次数</th><th>结果表数量</th><th>沉淀文档数</th><th>累计订阅次数</th><th>接口调用次数</th><th>服务接口数</th><th>规划场景数</th><th>场景名称</th><th>校验</th></tr></thead><tbody>
+        ${gscP.rows.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td>${['unit','govField','govTable','govDoc','sub','calls','apis','scenes','sceneNames'].map(k=>`<td>${r.vals[k]!=null?esc(String(r.vals[k])):'—'}</td>`).join('')}<td>${r.ok?'<span class="imp-ok">有效</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
         </tbody></table>`:'')
       +(flds.length?`<div class="dsec" style="margin-top:10px">字段明细预览（${flds.length} 行）</div>
         <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:22%">所属数据目录</th><th style="width:16%">数据源单位</th><th style="width:20%">字段名称</th><th>字段类型</th><th>字段长度</th><th>校验</th></tr></thead><tbody>
         ${flds.map(r=>`<tr${r.ok?'':' style="background:rgba(213,73,65,.06)"'}><td class="dim num">${r.line}</td><td class="name">${esc(r.cat)}</td><td>${esc(r.dept)}</td><td class="name">${esc(r.name)}</td><td>${esc(r.ftype)}</td><td>${esc(r.flen)}</td><td>${r.ok?'<span class="imp-ok">登记</span>':`<span class="imp-err">${r.errs.join('；')}</span>`}</td></tr>`).join('')}
         </tbody></table>`:'')
-      +`<div class="imp-tip" style="margin-top:10px">已跳过示例/说明/未填报行 ${skipN} 行（示例行任一单元格含「示例」即整行跳过；覆盖范围一类一行：同库数值仅在首行填写）</div>`;
+      +`<div class="imp-tip" style="margin-top:10px">已跳过示例/说明/未填报行 ${skipN} 行（示例行任一单元格含「示例」即整行跳过；数据总览五项数值列按列求和汇总、供数单位按数据源单位去重计数，请勿重复填写同一笔数据）</div>`;
     const hasValid=aOk||catOk||gOk||ahOk||fOk; /* r21：合并 sheet 有效行数 ahOk；r24：数据接入目录有效行数 catOk */
     $('#impGo').disabled=!hasValid;
     $('#impGo').textContent=hasValid?'确认导入':'确认导入（无有效行）';
   }catch(err){
-    $('#impStatus').innerHTML=`<span class="imp-err">解析失败：${esc(err.message)}</span><br>请确认使用标准通用版模板（五工作表「数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细」，每 sheet 第 1 行说明行、第 2 行表头、第 3 行起数据），或先下载模板重新填写`;
+    $('#impStatus').innerHTML=`<span class="imp-err">解析失败：${esc(err.message)}</span><br>请确认使用标准通用版模板（四工作表「数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务」，每 sheet 第 1 行说明行、第 2 行表头、第 3 行起数据），或先下载模板重新填写`;
   }
 }
 function impCommit(){
@@ -2624,24 +2638,35 @@ function impCommit(){
   const hasAch=gRow&&ACH_KEYS.some(k=>gRow.vals[k]!=null);
   const hasScn=gRow&&SCN_KEYS.some(k=>gRow.vals[k]!=null);
   if(!accValid.length&&!catValid.length&&!ruleValid.length&&!fldValid.length&&!gRow)return;
-  /* v1.8.0（r20）：数据接入指标按库名称匹配写入 IMP_LIB_SUM（接入数据量/应建目录数/数据字段数/源表数）——P2 库卡与 P3 KPI 按填报值展示，未填指标保持快照 */
+  /* r27（PRD v2.0.6）：「数据总览」sheet 各单位填录 → 全表汇总——接入数据量/数据字段/治理规则/累计订阅次数/接口调用次数按列求和，供数单位按数据源单位去重计数；写 IMP_OVERVIEW 驱动 P3 六张 KPI 卡（未填字段保持快照） */
   let accN=0;
+  const ovSum={records:0,fields:0,rules:0,subs:0,calls:0};
+  const ovHas={records:false,fields:false,rules:false,subs:false,calls:false,units:false};
+  const ovUnits=new Set();
   accValid.forEach(r=>{
-    const key=LIBS.find(l=>l.name===r.lib).key;
-    IMP_LIB_SUM[key]={...(IMP_LIB_SUM[key]||{}),...r.vals,libName:r.lib,libType:r.type,libUnit:r.unit,libScope:r.scope};
+    const lib=LIBS.find(l=>l.name===r.lib),key=lib?lib.key:null;
+    if(key)IMP_LIB_SUM[key]={...(IMP_LIB_SUM[key]||{}),...r.vals,libName:r.lib,libType:r.type,libUnit:r.unit,libScope:r.scope};
+    ['records','fields','rules','subs','calls'].forEach(k=>{if(r.vals[k]!=null){ovSum[k]+=r.vals[k];ovHas[k]=true;}});
+    if(r.unit){ovUnits.add(r.unit);ovHas.units=true;}
     accN++;
   });
-  /* r24：数据接入目录级明细 → 写目录台账（LEDGER_CATS）：已登记目录按填报值更新；新目录登记为导入目录（imported 标记驱动 P4 数据接入页 / 目录抽屉 / 全量查询） */
-  let catNew=0,catUpd=0;
+  if(accN)IMP_OVERVIEW={rows:accN,units:ovUnits.size,...ovSum,has:ovHas};
+  /* r24：数据接入目录级明细 → 写目录台账（LEDGER_CATS）：已登记目录按填报值更新；新目录登记为导入目录（imported 标记驱动 P4 数据接入页 / 目录抽屉 / 全量查询）
+     r27：用户最终版新增「更新状态」「已接入字段」两列——「已接入字段」按分号拆分合并进目录 items（替代已删除的「字段明细」sheet）、「更新状态」登记 ex.updStatus（抽屉/目录行可展示） */
+  let catNew=0,catUpd=0,catItems=0;
   catValid.forEach(r=>{
+    const fldItems=r.itemsRaw?r.itemsRaw.split(/[;；]/).map(s=>s.trim()).filter(Boolean):[];
     const ex=LEDGER_CATS.find(c=>c.name===r.cat&&c.dept===r.dept);
     if(ex){
       Object.assign(ex,{fields:Number(r.fields),rows:impFmtRows(num(r.rows)),freq:r.freq});
       if(r.trange)ex.start=r.trange;
       if(r.last)ex.last=r.last;
+      if(r.updStatus)ex.updStatus=r.updStatus;
       ex.st=ex.st||'已接入';catUpd++;
+      const set=new Set(ex.items||[]);fldItems.forEach(x=>{if(!set.has(x)){set.add(x);catItems++;}});ex.items=[...set];
     }else{
-      LEDGER_CATS.push({id:LEDGER_CATS.reduce((m,c)=>Math.max(m,c.id||0),0)+1,lib:null,name:r.cat,dept:r.dept,method:'库表',freq:r.freq,st:'已接入',rows:impFmtRows(num(r.rows)),fields:Number(r.fields),start:r.trange||null,last:r.last||null,items:[],imported:true});catNew++;
+      LEDGER_CATS.push({id:LEDGER_CATS.reduce((m,c)=>Math.max(m,c.id||0),0)+1,lib:null,name:r.cat,dept:r.dept,method:'库表',freq:r.freq,st:'已接入',rows:impFmtRows(num(r.rows)),fields:Number(r.fields),start:r.trange||null,last:r.last||null,updStatus:r.updStatus||null,items:fldItems,imported:true});
+      catItems+=fldItems.length;catNew++;
     }
   });
   /* 治理规则（字段级）登记 → 数据治理页「字段级规则（导入）」列表 */
@@ -2664,23 +2689,24 @@ function impCommit(){
   if(hasAch||hasScn)renderAch();  refreshCarousels();
   const skipN=impState.accSkipped.length+impState.impCatSkipped.length+impState.govSkipped.length+impState.gscP.skipped.length+impState.fldSkipped.length;
   const badN=(accs.length-accValid.length)+(impCats.length-catValid.length)+(grules.length-ruleValid.length)+(flds.length-fldValid.length)+(gscP.rows.filter(r=>!r.ok).length);
-  $('#impStatus').innerHTML=`<span class="imp-ok">导入完成：${accN?`数据总览 ${accN} 行（大屏对应指标已按填报值展示） · `:''}${catValid.length?`数据接入目录 ${catValid.length} 行（新增登记 ${catNew} · 更新 ${catUpd}，目录台账与数据接入页已更新） · `:''}${ruleValid.length?`治理规则登记 ${ruleValid.length} 条（字段级规则列表已更新） · `:''}${hasAch?'治理成果已按填报值展示 · ':''}${hasScn?'场景服务已按填报值展示 · ':''}${fldMerged?`字段登记 ${fldMerged} 条（合并至已登记目录的已接入字段） · `:''}跳过示例/说明/未填报行 ${skipN} 行${badN?` · 异常 ${badN} 行未导入`:''}（内存态展示，刷新页面后还原为快照数据）</span>`;
+  $('#impStatus').innerHTML=`<span class="imp-ok">导入完成：${accN?`数据总览 ${accN} 行（六项核心指标已按各单位填录汇总展示：五项数值按列求和、供数单位按数据源单位去重计数） · `:''}${catValid.length?`数据接入目录 ${catValid.length} 行（新增登记 ${catNew} · 更新 ${catUpd}，目录台账与数据接入页已更新） · `:''}${ruleValid.length?`治理规则登记 ${ruleValid.length} 条（字段级规则列表已更新） · `:''}${hasAch?'治理成果已按填报值展示 · ':''}${hasScn?'场景服务已按填报值展示 · ':''}${fldMerged?`字段登记 ${fldMerged} 条（合并至已登记目录的已接入字段） · `:''}跳过示例/说明/未填报行 ${skipN} 行${badN?` · 异常 ${badN} 行未导入`:''}（内存态展示，刷新页面后还原为快照数据）</span>`;
   $('#impPreview').innerHTML=`
-    ${accN?`<div class="dsec" style="margin-top:2px">数据总览导入结果（${accN} 行 · 未填报指标保持平台现有展示）</div>
-    <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:16%">单位</th><th style="width:14%">覆盖范围</th><th style="width:22%">库名称</th><th>库类型</th><th>接入数据量</th><th>应建目录数</th><th>数据字段数</th><th>源表数</th></tr></thead><tbody>
-      ${accValid.map(r=>`<tr><td class="dim num">${r.line}</td><td>${esc(r.unit)}</td><td>${esc(r.scope)}</td><td class="name">${esc(r.lib)}</td><td>${esc(r.type)}</td><td>${r.vals.libRecords!=null?r.vals.libRecords.toLocaleString('en-US'):'—'}</td><td>${r.vals.libCatalogs!=null?r.vals.libCatalogs:'—'}</td><td>${r.vals.libFields!=null?r.vals.libFields:'—'}</td><td>${r.vals.libSrcTables!=null?r.vals.libSrcTables:'—'}</td></tr>`).join('')}
+    ${accN?`<div class="dsec" style="margin-top:2px">数据总览导入结果（${accN} 行 · 五项数值按列求和、供数单位按数据源单位去重计数，P3 六卡已汇总展示）</div>
+    <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:13%">数据源单位</th><th style="width:11%">覆盖范围</th><th style="width:17%">库名称</th><th style="width:9%">库类型</th><th>接入数据量（条）</th><th>数据字段（项）</th><th>治理规则（条）</th><th>累计订阅（次）</th><th>接口调用（次）</th></tr></thead><tbody>
+      ${accValid.map(r=>`<tr><td class="dim num">${r.line}</td><td>${esc(r.unit)}</td><td>${esc(r.scope)}</td><td class="name">${esc(r.lib)}</td><td>${esc(r.type)}</td><td>${r.vals.records!=null?r.vals.records.toLocaleString('en-US'):'—'}</td><td>${r.vals.fields!=null?r.vals.fields.toLocaleString('en-US'):'—'}</td><td>${r.vals.rules!=null?r.vals.rules.toLocaleString('en-US'):'—'}</td><td>${r.vals.subs!=null?r.vals.subs.toLocaleString('en-US'):'—'}</td><td>${r.vals.calls!=null?r.vals.calls.toLocaleString('en-US'):'—'}</td></tr>`).join('')}
+      ${IMP_OVERVIEW?`<tr style="font-weight:600;background:rgba(22,119,255,.05)"><td class="dim num">Σ</td><td colspan="4">供数单位 ${IMP_OVERVIEW.units} 家（数据源单位去重）</td><td>${(IMP_OVERVIEW.records||0).toLocaleString('en-US')}</td><td>${(IMP_OVERVIEW.fields||0).toLocaleString('en-US')}</td><td>${(IMP_OVERVIEW.rules||0).toLocaleString('en-US')}</td><td>${(IMP_OVERVIEW.subs||0).toLocaleString('en-US')}</td><td>${(IMP_OVERVIEW.calls||0).toLocaleString('en-US')}</td></tr>`:''}
       </tbody></table>`:''}
     ${catValid.length?`<div class="dsec" style="margin-top:10px">数据接入目录导入结果（${catValid.length} 行 · 新增登记 ${catNew} · 更新 ${catUpd} · 目录台账已更新，刷新还原快照）</div>
-    <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:18%">数据源单位</th><th style="width:24%">数据目录</th><th style="width:9%">字段数</th><th style="width:13%">数据量</th><th style="width:9%">更新频率</th><th style="width:13%">数据时间范围</th><th>最后更新时间</th></tr></thead><tbody>
-      ${catValid.map(r=>`<tr><td class="dim num">${r.line}</td><td>${esc(r.dept)}</td><td class="name">${esc(r.cat)}</td><td>${num(r.fields).toLocaleString('en-US')}</td><td>${num(r.rows).toLocaleString('en-US')}</td><td>${esc(r.freq)}</td><td>${esc(r.trange||'—')}</td><td>${esc(r.last||'—')}</td></tr>`).join('')}
+    <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:16%">数据源单位</th><th style="width:20%">数据目录</th><th style="width:8%">字段数</th><th style="width:11%">数据量</th><th style="width:8%">更新频率</th><th style="width:11%">数据时间范围</th><th style="width:9%">最后更新时间</th><th style="width:7%">更新状态</th><th>已接入字段</th></tr></thead><tbody>
+      ${catValid.map(r=>`<tr><td class="dim num">${r.line}</td><td>${esc(r.dept)}</td><td class="name">${esc(r.cat)}</td><td>${num(r.fields).toLocaleString('en-US')}</td><td>${num(r.rows).toLocaleString('en-US')}</td><td>${esc(r.freq)}</td><td>${esc(r.trange||'—')}</td><td>${esc(r.last||'—')}</td><td>${esc(r.updStatus||'—')}</td><td class="dim" style="font-size:11px">${esc(r.itemsRaw||'—')}</td></tr>`).join('')}
       </tbody></table>`:''}
     ${ruleValid.length?`<div class="dsec" style="margin-top:10px">治理规则导入结果（字段级 · ${ruleValid.length} 条）</div>
     <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:13%">数据源单位</th><th style="width:16%">库名称</th><th style="width:17%">目标表</th><th>字段</th><th style="width:28%">规则描述</th></tr></thead><tbody>
       ${ruleValid.map(r=>`<tr><td class="dim num">${r.line}</td><td class="name">${esc(r.dept)}</td><td>${esc(r.lib)}</td><td class="muted" style="font-size:11px">${esc(r.table)}</td><td>${esc(r.field)}</td><td class="dim" style="font-size:11px">${esc(r.desc)}</td></tr>`).join('')}
       </tbody></table>`:''}
-    ${(hasAch||hasScn)?`<div class="dsec" style="margin-top:10px">治理成果与场景服务导入结果（全平台汇总 · 按填报值展示）</div>
-    <table class="dtable"><thead><tr><th>数据源单位</th><th>治理字段次数</th><th>结果表数量</th><th>沉淀文档数</th><th>累计订阅次数</th><th>接口调用次数</th><th>服务接口数</th><th>规划场景数</th></tr></thead><tbody>
-      <tr>${['unit','govField','govTable','govDoc','sub','calls','apis','scenes'].map(k=>`<td>${gRow.vals[k]!=null?esc(String(gRow.vals[k])):'—'}</td>`).join('')}</tr>
+    ${(hasAch||hasScn)?`<div class="dsec" style="margin-top:10px">治理成果与场景服务导入结果（数值列全平台汇总 · 按填报值展示）</div>
+    <table class="dtable"><thead><tr><th>数据源单位</th><th>治理字段次数</th><th>结果表数量</th><th>沉淀文档数</th><th>累计订阅次数</th><th>接口调用次数</th><th>服务接口数</th><th>规划场景数</th><th>场景名称</th></tr></thead><tbody>
+      <tr>${['unit','govField','govTable','govDoc','sub','calls','apis','scenes','sceneNames'].map(k=>`<td>${gRow.vals[k]!=null?esc(String(gRow.vals[k])):'—'}</td>`).join('')}</tr>
       </tbody></table>`:''}
     ${fldMerged?`<div class="dsec" style="margin-top:10px">字段明细导入结果（${fldMerged} 条合并至已登记目录的已接入字段）</div>
     <table class="dtable"><thead><tr><th style="width:34px">行</th><th style="width:24%">所属数据目录</th><th style="width:20%">数据源单位</th><th>字段名称</th><th>字段类型</th><th>字段长度</th></tr></thead><tbody>
@@ -2923,7 +2949,7 @@ $('#fullBtn').onclick=()=>{
   else document.exitFullscreen();
 };
 
-/* init · build-2.4.4 新增 hash 导航（供 prototype-prd.html 对照页 iframe 联动）；build-2.4.5 新增数据接入 Excel 导入（F-046/F-047）；build-2.4.6 导入改弹窗交互 + 导入后结果预览 + 错误提示规则（PRD v1.5.0）；build-2.4.7 六库模板新增「数据表」工作表 + 导入解析支持数据表 sheet + 库卡右上角库元素图标 + 目录详情抽屉 Tab 下钻（目录信息/数据表/已接入字段）+ 查询全部已接入数据弹窗（F-048/F-049）；build-2.4.8（PRD v1.6.0）总览驾驶舱展示入口移除（导航/巡播/默认页改库资源门户，section 与口径保留存档）+ 导入模板简化为单工作表「数据目录」（12 列，含主要字段 1-3 与数据开始/截止时间）+ 导入解析适配新表头；build-2.4.9（PRD v1.7.0）导入模板增回「字段明细」独立 sheet（所属数据目录*、数据源单位*、字段名称*、字段类型、字段长度、字段说明，模板 = 双工作表）+ 导入全链路支持字段 sheet（字段名称去重合并进目录「已接入字段」items，示例/说明行与未登记目录引用自动跳过或标红）；build-2.4.10（PRD v1.7.1）字段类型改用英文类型名（varchar / int / decimal / date / datetime，模板示例数据与「填写说明」同步，导入解析不变）；build-2.4.11（PRD v1.7.2）「数据目录」sheet 去掉主要字段 1–3 三列（12→9 列，字段要素以「字段明细」sheet 为准），导入不再从主要字段写入 items（已接入字段仅由「字段明细」sheet 合并），示例数据与填写说明同步；build-2.4.12（PRD v1.7.3）导入改全要素必填（「数据目录」9 列全部必填、「字段明细」除字段说明外必填，缺失任一展示要素明确提示并阻止导入该行）+ 导入完整数据并入大屏展示（数据接入页单位视图合并导入目录并新增导入供数单位、目录抽屉展示全部要素并修复 undefined、数据治理-更新机制并入导入目录）+ impFmtRows 精确到个位（R-03）；build-2.4.13（PRD v1.7.4）导入表头级全要素校验（用户指令：填写的表头也要包含全部要素）——「数据目录」sheet 表头须包含全部 9 列要素列、「字段明细」表头须包含 5 个必填要素列（字段说明选填可缺），缺任一列文件级阻止导入并明确提示缺失列，模板「填写说明」增表头完整条款；build-2.4.14（PRD v1.7.5）导入模板对齐原型展示要素（用户指令：调整导入模板，把原型中展示的要素全部在导入模板中体现，下发各厅局填写后导入系统展示）——「数据目录」sheet 9→14 列（新增 需求字段数* / 接入状态* / 约定更新时间* / 物理表源表名* / 治理表名*），导入按填报值登记接入状态（已接入/待接入，不再一律「已接入」）并写入 req/agreed/src/gov，目录抽屉显示真实源表/治理表/约定更新时间/需求字段数（填「—」显示「待治理登记」占位，未知≠0），数据表 Tab 由填报表名派生源表/治理表（不虚构编码）；build-2.4.16（PRD v1.7.6）需求转向：通用版导入模板 + 指标数值驱动展示（用户指令：不要管之前的需求，现在只是做模板，是为了有些单位无法提供数据，只提供各项指标数值，用于省里做展示用）——模板改为一个通用版文件（六库合一，三工作表：「指标数值」31 列 = 库名称/库类型/牵头单位/覆盖范围 预填 + 27 项指标数值列 + 健康度，供无法提供目录明细数据的单位只填数值；「数据目录」14 列与「字段明细」保留供能提供明细的单位填写）+ 导入按表名定位「数据目录」、支持仅含「指标数值」的文件 + 新增 impMapIndHeader/IND_NUMS 解析「指标数值」sheet（数值校验、库名称匹配六库、示例与未填报行跳过）+ impCommit 写入 IMP_LIB_SUM 并刷新展示（P2 库卡应建目录数 renderLibGrid、P3 renderPopKpis/renderPopMods 六 KPI 与四模块统计、P6 renderAch 五 KPI、P7 renderSceneKpis 四 KPI——厅局填什么就展示什么，未填报指标保持快照）+ 导入回执三区段（指标/目录/字段）；build-2.4.17（PRD v1.8.1 · r21）用户指令五项调整——①各模块明细展示区增加轮播（data-caro 标记 + startCarousel/refreshCarousels：溢出行进/到底回顶/hover 暂停/刷新重建，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮与两处内联「导入台账 Excel」，空白区域 2 秒内连击 3 次浮出隐藏入口面板、再次三连击收起）③数据治理页重构（统计总数 4 卡置顶、下方规则明细，移除「更新机制」Tab 与 renderGovUpdate）④治理成果页左侧板块丰富（填报进度/填报完整度/沉淀文档合计/填报口径卡/贡献 TOP/归集链路）+ 单位填报列表删除恒空「文档 —」项⑤场景服务并入治理成果页（P7 删除、导航 5→4、「规划场景」展示全面移除）+ 导入模板「治理成果」「场景服务」两 sheet 合并为「治理成果与场景服务」（8 列全平台汇总一行）；build-2.4.18（r22）用户指令两项——①资源清单页移除（导航「资源清单」/ P8 page-catalog 整页 / 相关 JS 区块与 drawRing3D / 库抽屉「前往资源清单」按钮 / PAGE_META·TOUR 路由项删除；LEDGER_CATS 数据保留供 P2/P3/导入链路）②PRD 重写为研发交付版 v2.0.0（仅保留当前原型对应需求，历史调整不体现）；build-2.4.19（r23）用户指令「库资源门户文字也去掉，上面已经没有 tab 了，有点多余，直接从页面进就可以了」——顶栏主导航最后一个按钮「库资源门户」移除（空 #mainnav 容器保留维持布局），默认页即库资源门户、库卡进入人口库详情、左上返回按钮回门户；build-2.4.20（r24 · PRD v2.0.3）用户指令「导入模板还是不对，现在的数据接入 sheet 应该是数据总览，再增加一张数据接入 sheet」——导入模板改五工作表（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）：原「数据接入」8 列改名「数据总览」，新增「数据接入」目录级明细 sheet（7 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间），导入按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 数据接入页与目录抽屉；已登记目录按填报值更新、新目录登记为导入目录；更新频率枚举校验），回执与预览增「数据接入目录」区段；build-2.4.21（r25 · PRD v2.0.4）用户指令「库资源门户这个面包屑都要删除」——面包屑（#crumb）中的「库资源门户」项全部删除：PAGE_META 5 个页面首段移除（P2 门户页面包屑置空并隐藏容器，P3–P6 仅保留「人口基础库 / 当前页」层级）、HTML 初始 #crumb 置空、setPage 按 crumb 空值切换隐藏；顶栏主导航（r23 已空）与页面内 Tab 不变；build-2.4.22（r26 · PRD v2.0.5）用户手动调整导入模板为最终版，要求调整样式、内容不要动——模板样式调整（内容零改动，XML 级注入）：第 1 行说明行加高 ht=80 + 自动换行 wrapText + 浅蓝灰底 FFEFF4FB + 灰字 5B6B85（一屏直读完整说明，无需逐格点开），第 2 行表头 1677FF 蓝底白字加粗居中 + 细边框 BFD3EA + 冻结前两行 pane，说明行与表头视觉分层明显；导入链路同步适配最终版列结构：数据治理 sheet 首列「规则编号*」→「数据源单位*」（IMP_GOV_RULES 首键 unit、去重改「同单位同字段的相同规则」、治理页明细列与抽屉同步）、治理成果与场景服务 sheet 首列「流程节点数」→「数据源单位*」（解析为文本列不进数值 KPI、ACH_KEYS 去 govNode，P6 流程节点 KPI 保持快照）、字段明细 sheet 新增 库名称* / 库类型* 两列（5→6 必填、8 列，多余列忽略不影响表头校验）、数据总览仅留 1 行信用库示例（预填 21 行由用户删除，覆盖口径不变） */
+/* init · build-2.4.4 新增 hash 导航（供 prototype-prd.html 对照页 iframe 联动）；build-2.4.5 新增数据接入 Excel 导入（F-046/F-047）；build-2.4.6 导入改弹窗交互 + 导入后结果预览 + 错误提示规则（PRD v1.5.0）；build-2.4.7 六库模板新增「数据表」工作表 + 导入解析支持数据表 sheet + 库卡右上角库元素图标 + 目录详情抽屉 Tab 下钻（目录信息/数据表/已接入字段）+ 查询全部已接入数据弹窗（F-048/F-049）；build-2.4.8（PRD v1.6.0）总览驾驶舱展示入口移除（导航/巡播/默认页改库资源门户，section 与口径保留存档）+ 导入模板简化为单工作表「数据目录」（12 列，含主要字段 1-3 与数据开始/截止时间）+ 导入解析适配新表头；build-2.4.9（PRD v1.7.0）导入模板增回「字段明细」独立 sheet（所属数据目录*、数据源单位*、字段名称*、字段类型、字段长度、字段说明，模板 = 双工作表）+ 导入全链路支持字段 sheet（字段名称去重合并进目录「已接入字段」items，示例/说明行与未登记目录引用自动跳过或标红）；build-2.4.10（PRD v1.7.1）字段类型改用英文类型名（varchar / int / decimal / date / datetime，模板示例数据与「填写说明」同步，导入解析不变）；build-2.4.11（PRD v1.7.2）「数据目录」sheet 去掉主要字段 1–3 三列（12→9 列，字段要素以「字段明细」sheet 为准），导入不再从主要字段写入 items（已接入字段仅由「字段明细」sheet 合并），示例数据与填写说明同步；build-2.4.12（PRD v1.7.3）导入改全要素必填（「数据目录」9 列全部必填、「字段明细」除字段说明外必填，缺失任一展示要素明确提示并阻止导入该行）+ 导入完整数据并入大屏展示（数据接入页单位视图合并导入目录并新增导入供数单位、目录抽屉展示全部要素并修复 undefined、数据治理-更新机制并入导入目录）+ impFmtRows 精确到个位（R-03）；build-2.4.13（PRD v1.7.4）导入表头级全要素校验（用户指令：填写的表头也要包含全部要素）——「数据目录」sheet 表头须包含全部 9 列要素列、「字段明细」表头须包含 5 个必填要素列（字段说明选填可缺），缺任一列文件级阻止导入并明确提示缺失列，模板「填写说明」增表头完整条款；build-2.4.14（PRD v1.7.5）导入模板对齐原型展示要素（用户指令：调整导入模板，把原型中展示的要素全部在导入模板中体现，下发各厅局填写后导入系统展示）——「数据目录」sheet 9→14 列（新增 需求字段数* / 接入状态* / 约定更新时间* / 物理表源表名* / 治理表名*），导入按填报值登记接入状态（已接入/待接入，不再一律「已接入」）并写入 req/agreed/src/gov，目录抽屉显示真实源表/治理表/约定更新时间/需求字段数（填「—」显示「待治理登记」占位，未知≠0），数据表 Tab 由填报表名派生源表/治理表（不虚构编码）；build-2.4.16（PRD v1.7.6）需求转向：通用版导入模板 + 指标数值驱动展示（用户指令：不要管之前的需求，现在只是做模板，是为了有些单位无法提供数据，只提供各项指标数值，用于省里做展示用）——模板改为一个通用版文件（六库合一，三工作表：「指标数值」31 列 = 库名称/库类型/牵头单位/覆盖范围 预填 + 27 项指标数值列 + 健康度，供无法提供目录明细数据的单位只填数值；「数据目录」14 列与「字段明细」保留供能提供明细的单位填写）+ 导入按表名定位「数据目录」、支持仅含「指标数值」的文件 + 新增 impMapIndHeader/IND_NUMS 解析「指标数值」sheet（数值校验、库名称匹配六库、示例与未填报行跳过）+ impCommit 写入 IMP_LIB_SUM 并刷新展示（P2 库卡应建目录数 renderLibGrid、P3 renderPopKpis/renderPopMods 六 KPI 与四模块统计、P6 renderAch 五 KPI、P7 renderSceneKpis 四 KPI——厅局填什么就展示什么，未填报指标保持快照）+ 导入回执三区段（指标/目录/字段）；build-2.4.17（PRD v1.8.1 · r21）用户指令五项调整——①各模块明细展示区增加轮播（data-caro 标记 + startCarousel/refreshCarousels：溢出行进/到底回顶/hover 暂停/刷新重建，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮与两处内联「导入台账 Excel」，空白区域 2 秒内连击 3 次浮出隐藏入口面板、再次三连击收起）③数据治理页重构（统计总数 4 卡置顶、下方规则明细，移除「更新机制」Tab 与 renderGovUpdate）④治理成果页左侧板块丰富（填报进度/填报完整度/沉淀文档合计/填报口径卡/贡献 TOP/归集链路）+ 单位填报列表删除恒空「文档 —」项⑤场景服务并入治理成果页（P7 删除、导航 5→4、「规划场景」展示全面移除）+ 导入模板「治理成果」「场景服务」两 sheet 合并为「治理成果与场景服务」（8 列全平台汇总一行）；build-2.4.18（r22）用户指令两项——①资源清单页移除（导航「资源清单」/ P8 page-catalog 整页 / 相关 JS 区块与 drawRing3D / 库抽屉「前往资源清单」按钮 / PAGE_META·TOUR 路由项删除；LEDGER_CATS 数据保留供 P2/P3/导入链路）②PRD 重写为研发交付版 v2.0.0（仅保留当前原型对应需求，历史调整不体现）；build-2.4.19（r23）用户指令「库资源门户文字也去掉，上面已经没有 tab 了，有点多余，直接从页面进就可以了」——顶栏主导航最后一个按钮「库资源门户」移除（空 #mainnav 容器保留维持布局），默认页即库资源门户、库卡进入人口库详情、左上返回按钮回门户；build-2.4.20（r24 · PRD v2.0.3）用户指令「导入模板还是不对，现在的数据接入 sheet 应该是数据总览，再增加一张数据接入 sheet」——导入模板改五工作表（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）：原「数据接入」8 列改名「数据总览」，新增「数据接入」目录级明细 sheet（7 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间），导入按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 数据接入页与目录抽屉；已登记目录按填报值更新、新目录登记为导入目录；更新频率枚举校验），回执与预览增「数据接入目录」区段；build-2.4.21（r25 · PRD v2.0.4）用户指令「库资源门户这个面包屑都要删除」——面包屑（#crumb）中的「库资源门户」项全部删除：PAGE_META 5 个页面首段移除（P2 门户页面包屑置空并隐藏容器，P3–P6 仅保留「人口基础库 / 当前页」层级）、HTML 初始 #crumb 置空、setPage 按 crumb 空值切换隐藏；顶栏主导航（r23 已空）与页面内 Tab 不变；build-2.4.22（r26 · PRD v2.0.5）用户手动调整导入模板为最终版，要求调整样式、内容不要动——模板样式调整（内容零改动，XML 级注入）：第 1 行说明行加高 ht=80 + 自动换行 wrapText + 浅蓝灰底 FFEFF4FB + 灰字 5B6B85（一屏直读完整说明，无需逐格点开），第 2 行表头 1677FF 蓝底白字加粗居中 + 细边框 BFD3EA + 冻结前两行 pane，说明行与表头视觉分层明显；导入链路同步适配最终版列结构：数据治理 sheet 首列「规则编号*」→「数据源单位*」（IMP_GOV_RULES 首键 unit、去重改「同单位同字段的相同规则」、治理页明细列与抽屉同步）、治理成果与场景服务 sheet 首列「流程节点数」→「数据源单位*」（解析为文本列不进数值 KPI、ACH_KEYS 去 govNode，P6 流程节点 KPI 保持快照）、字段明细 sheet 新增 库名称* / 库类型* 两列（5→6 必填、8 列，多余列忽略不影响表头校验）、数据总览仅留 1 行信用库示例（预填 21 行由用户删除，覆盖口径不变）；build-2.4.23（r27 · PRD v2.0.6）用户指令两步——①「数据总览需要根据各单位填录的这些字段，最后进行汇总展示」（截图 P3 六张 KPI 卡）②「基于现在的导入模板去调整」，且用户手动改版模板（17:02 WPS 另存：删「字段明细」sheet 五→四工作表、「数据接入」加「更新状态/已接入字段」2 列、「治理成果与场景服务」加「场景名称」1 列）为准——数据总览 sheet 表头改 9 列汇总口径（数据源单位* / 覆盖范围* / 库名称* / 库类型* / 接入数据量*（条）/ 数据字段*（项）/ 治理规则*（条）/ 累计订阅次数*（次）/ 接口调用次数*（次），一单位一库一类别一行），导入后新增 IMP_OVERVIEW 全局汇总：接入数据量/数据字段/治理规则/累计订阅次数/接口调用次数按列求和 + 供数单位按数据源单位去重计数，驱动 P3 六张 KPI 卡（每卡独立 has 判断，未填列保持快照、未知≠0）；IMP_LIB_SUM 保留按库名写入（P2 库卡 catN/renderPopMods libSrcTables 自然回退快照——新表头无应建目录数/源表数列）；「数据接入」新增可选列「更新状态」（ex.updStatus）「已接入字段」（分号拆分合并目录 items，替代已删除的字段明细 sheet）；「治理成果与场景服务」新增可选文本列「场景名称」（缺列兼容旧 8 列文件）；预览/回执表改 9 列新表头 + Σ 汇总行；弹窗/错误文案改四工作表口径；模板 XML 级改造（仅 sheet1 + sharedStrings，用户手动版 4 sheet 内容零改动，样式/pane/ht 全保留） */
 function pageFromHash(){
   const h=(location.hash||'').replace(/^#/,'');
   return (h && h.indexOf('page-')===0 && document.getElementById(h)) ? h : null;
