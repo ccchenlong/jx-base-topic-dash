@@ -85,14 +85,14 @@ const RULES = [
     doc: '数据字段 1,023 项；已接入明细 896 / 需求 982（03-prd.md 7.2 / R-10）',
     test: () => dom.includes('1,023') && src.includes('896') },
   { id: 'R-11', name: '版本标识可见 + hash 导航（对照页联动）',
-    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.23），与 PRD / state 版本一致（PRD v2.0.6）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）；r25：面包屑（#crumb）无「库资源门户」项',
-    test: () => dom.includes('build-2.4.23') && src.includes('id="buildTag"')
+    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.24），与 PRD / state 版本一致（PRD v2.0.7）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）；r25：面包屑（#crumb）无「库资源门户」项',
+    test: () => dom.includes('build-2.4.24') && src.includes('id="buildTag"')
       && !src.includes('data-page="libraries"')
       /* r25：面包屑中的「库资源门户」项全部删除（P2 门户页空且隐藏；P3–P6 仅保留「人口基础库 / 当前页」） */
       && !src.includes('<b>库资源门户</b>') && src.includes('<div class="crumb" id="crumb"></div>')
       && src.includes("$('#crumb').style.display=m.crumb?'':'none'") && src.includes("crumb:'<b>人口基础库</b>")
       && src.includes("addEventListener('hashchange'") && src.includes('window.setPage=setPage') },
-  { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版四工作表模板（F-046/F-047 / PRD v2.0.6）',
+  { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版四工作表模板（F-046/F-047 / PRD v2.0.7）',
     doc: '03-prd.md §3 / §6：大屏不直接展示导入模板/导入入口，空白区域 2 秒内连击 3 次浮出隐藏入口面板；导入居中弹窗（遮罩/Escape/焦点约束），确认后提供导入结果预览，错误提示规则分级落地；零依赖解析写入内存并保留双口径与未知≠0 口径（N4 r9 新增 / r20 指标数值 / r21 四工作表+隐藏入口 / r24 五工作表 / r27 用户最终版四工作表）',
     test: () => dom.includes('下载导入模板') && dom.includes('Excel 导入') && src.includes('openImportModal')
       && src.includes('openModal') && src.includes("id=\"modal\"") && src.includes('数据总览导入结果') && src.includes('数据接入目录导入结果')
@@ -100,8 +100,8 @@ const RULES = [
       /* r21 隐藏导入入口：页面无直接导入按钮，空白三连击开启 */
       && !src.includes('id="btnTpl"') && !src.includes('id="btnImport"')
       && src.includes('hiddenEntry') && src.includes('_hideClicks') && src.includes('btnTplH') && src.includes('btnImportH') },
-  { id: 'R-13', name: '明细区轮播 / 四工作表导入模板·用户最终版（数据总览 9 列汇总口径）/ P3 六卡按各单位填录汇总 / 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-019b/F-021/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.6）',
-    doc: '03-prd.md §3–§6：通用版模板四工作表（数据总览 9 列汇总口径：数据源单位 / 覆盖范围 / 库名称 / 库类型 / 接入数据量（条）/ 数据字段（项）/ 治理规则（条）/ 累计订阅次数（次）/ 接口调用次数（次），一单位一库一类别一行、五项数值列按列求和、供数单位按数据源单位去重计数 / 数据接入 9 列（前 5 列必填 + 更新状态 / 已接入字段可选，已接入字段分号拆分合并目录 items）/ 数据治理 6 列全必填·字段级 / 治理成果与场景服务 9 列数值列全平台汇总一行 + 场景名称文本列），每 sheet 第 1 行说明行（灰字、自动换行、加高 ht=80）、第 2 行表头（蓝底白字加粗、冻结前两行）、第 3 行起数据（任一单元格含「示例」整行跳过）；r27 汇总口径：导入后写 IMP_OVERVIEW 驱动 P3 六张 KPI 卡（每卡独立 has 判断，未填列保持快照、未知≠0）；IMP_LIB_SUM 保留按库名写入（P2 库卡应建目录数 / 源表数回退快照）；「数据接入」sheet 按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 / 目录抽屉），已登记目录按填报值更新、新目录登记为导入目录；合并 sheet 按键拆分写 IMP_ACH/IMP_SCENE 驱动合并页 KPI（数据源单位/场景名称为文本列、不进数值 KPI）；治理成果页左侧板块丰富、单位填报列表无「文档 —」；治理页统计总数置顶+明细在下、「更新机制」Tab 移除；场景服务并入治理成果页、规划场景不再展示；各明细滚动区 data-caro 轮播（分页区不轮播）；填报值替换、未填保持快照（所有数据来源均为数据表导入）',
+  { id: 'R-13', name: '明细区轮播 / 四工作表导入模板·用户最终版（数据总览 9 列汇总口径 + 治理成果 sheet 10 列 TOP5 明细）/ P3 六卡按各单位填录汇总 / P6 底部三块按填报展示 / 拉伸铺满 / 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-019b/F-021/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.7）',
+    doc: '03-prd.md §3–§6：通用版模板四工作表（数据总览 9 列汇总口径：数据源单位 / 覆盖范围 / 库名称 / 库类型 / 接入数据量（条）/ 数据字段（项）/ 治理规则（条）/ 累计订阅次数（次）/ 接口调用次数（次），一单位一库一类别一行、五项数值列按列求和、供数单位按数据源单位去重计数 / 数据接入 9 列（前 5 列必填 + 更新状态 / 已接入字段可选，已接入字段分号拆分合并目录 items）/ 数据治理 6 列全必填·字段级 / 治理成果与场景服务 10 列数值列全平台汇总一行 + 场景名称 + TOP5 接口调用明细文本列（r28：名称:次数分号分隔，选填）），每 sheet 第 1 行说明行（灰字、自动换行、加高 ht=80）、第 2 行表头（蓝底白字加粗、冻结前两行）、第 3 行起数据（任一单元格含「示例」整行跳过）；r27 汇总口径：导入后写 IMP_OVERVIEW 驱动 P3 六张 KPI 卡（每卡独立 has 判断，未填列保持快照、未知≠0）；r28：IMP_TOP5 驱动 P6 底部三块（TOP5 明细 / 调用结构占比自动测算 / 调用监测），未填保持平台快照；scaleStage 拉伸铺满（宽高分别缩放，任意容器比例不留白边）；IMP_LIB_SUM 保留按库名写入（P2 库卡应建目录数 / 源表数回退快照）；「数据接入」sheet 按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 / 目录抽屉），已登记目录按填报值更新、新目录登记为导入目录；合并 sheet 按键拆分写 IMP_ACH/IMP_SCENE 驱动合并页 KPI（数据源单位/场景名称为文本列、不进数值 KPI）；治理成果页左侧板块丰富、单位填报列表无「文档 —」；治理页统计总数置顶+明细在下、「更新机制」Tab 移除；场景服务并入治理成果页、规划场景不再展示；各明细滚动区 data-caro 轮播（分页区不轮播）；填报值替换、未填保持快照（所有数据来源均为数据表导入）',
     test: () => dom.includes('查询全部已接入数据') && src.includes('LIB_ICONS') && src.includes('openAllDataModal')
       && src.includes('openDirDrawer') && src.includes('DATA_TABLES')
       /* r20 数据接入页改造：字段结构预览 / 数据量构成模块移除；目录清单每页 20 条分页；抽屉两 Tab（去物理表/治理表/数据表 Tab） */
@@ -121,7 +121,7 @@ const RULES = [
       && src.includes('catItems+=fldItems.length;catNew++')
       && src.includes('数据接入目录 ') && src.includes('新增登记 ')
       && src.includes('ACH_KEYS') && src.includes('SCN_KEYS') && src.includes('hasAch||hasScn')
-      && src.includes('const IMP_GOV_RULES=[]') && src.includes('let IMP_ACH=null,IMP_SCENE=null')
+      && src.includes('const IMP_GOV_RULES=[]') && src.includes('let IMP_ACH=null,IMP_SCENE=null,IMP_TOP5=null')
       && src.includes('function renderGovRules') && src.includes('字段级规则（导入')
       && src.includes('库名称应为 ') && src.includes('同单位同字段的相同规则在文件内重复')
       /* r26 用户最终版列结构：治理 sheet 首列数据源单位（IMP_GOV_RULES 首键 unit）、成果 sheet 数据源单位为文本列、ACH_KEYS 去 govNode */
@@ -130,6 +130,11 @@ const RULES = [
       && src.includes('let IMP_OVERVIEW=null') && src.includes('if(accN)IMP_OVERVIEW=') && src.includes('ovUnits.size')
       && src.includes("key==='sceneNames'") && src.includes('const optCol=') && src.includes('itemsRaw')
       && src.includes('const gv=(k,fb)=>(o&&o.has[k])?o[k]:fb')
+      /* r28 TOP5 明细列：parseGlobal 可选文本列 top5Raw → IMP_TOP5 拆分（名称:次数，降序取 5）驱动 P6 底部三块 renderSvc；调用监测优先 sS.calls → IMP_TOP5 合计 → 快照 */
+      && src.includes("key==='top5Raw'") && src.includes('if(IMP_TOP5)renderSvc()') && src.includes('function renderSvc')
+      && src.includes('IMP_TOP5=gRow.vals.top5Raw.split') && src.includes("$('#svcApis')")
+      /* r28 拉伸铺满：scaleStage 宽高分别缩放（Math.min 等比缩放移除） */
+      && src.includes('scale(${sx},${sy})') && !src.includes('Math.min(innerWidth/1920')
       && src.includes('第 1 行为说明行、第 2 行为表头')
       && src.includes('function impCommit') && src.includes('IMP_LIB_SUM[key]=')
       && src.includes('renderPopKpis();renderPopMods();')
@@ -176,7 +181,7 @@ const RULES = [
           if (t === 'inlineStr') return [...xml.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map(m => m[1]).join('');
           const v = xml.match(/<v>([^<]*)<\/v>/); return v ? v[1] : '';
         };
-        /* r21 四工作表模板 → r24 五工作表 → r27 用户最终版四工作表（数据总览 9 列汇总口径 / 数据接入 9 列 / 数据治理 6 列 / 治理成果与场景服务 9 列）；
+        /* r21 四工作表模板 → r24 五工作表 → r27 用户最终版四工作表（数据总览 9 列汇总口径 / 数据接入 9 列 / 数据治理 6 列 / 治理成果与场景服务 10 列 r28 +TOP5 接口调用明细）；
            每 sheet 第 1 行说明行（加高 + 自动换行 + 浅蓝灰底灰字）、第 2 行表头（蓝底白字、冻结前两行）、第 3 行起数据；示例为信用库（任一单元格含「示例」整行跳过） */
         return ls.length === 1 && ls[0].includes('通用版')
           && (() => {
@@ -209,9 +214,12 @@ const RULES = [
               /* sheet3 数据治理（r26 用户最终版：首列「规则编号*」→「数据源单位*」，字段级规则 6 列） */
               && ['数据源单位*','库名称*','库类型*','目标表*','字段*','规则描述*'].every(h => T(s3).includes(h))
               && T(s3).includes('细化到字段') && T(s3).includes('（示例）')
-              /* sheet4 合并 sheet（r27 用户最终版 9 列：新增 场景名称文本列，数值列全平台汇总一行） */
-              && ['数据源单位*','治理字段次数','结果表数量','沉淀文档数','累计订阅次数','接口调用次数','服务接口数','规划场景数','场景名称'].every(h => T(s4).includes(h))
-              && T(s4).includes('851（示例）') && T(s4).includes('746（示例）');
+              /* sheet4 合并 sheet（r27 用户最终版 9 列 → r28 10 列：新增「TOP5 接口调用明细」可选文本列，数值列全平台汇总一行） */
+              && ['数据源单位*','治理字段次数','结果表数量','沉淀文档数','累计订阅次数','接口调用次数','服务接口数','规划场景数','场景名称','TOP5 接口调用明细'].every(h => T(s4).includes(h))
+              && T(s4).includes('851（示例）') && T(s4).includes('746（示例）')
+              && T(s4).includes('婚姻信息核验接口:52000000（示例）') && T(s4).includes('名称:次数')
+              && s4.includes('A1:J3') && s4.includes('<c r="J1" s="1" t="s">') && s4.includes('<c r="J2" s="2" t="s">')
+              && readPart(p, 'xl/sharedStrings.xml').includes('count="118" uniqueCount="104"');
           })();
       })()},
 ];

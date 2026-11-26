@@ -1,4 +1,4 @@
-# 04-prototype/ 结构说明（build-2.4.23，N6 r27 / PRD v2.0.6 研发交付版）
+# 04-prototype/ 结构说明（build-2.4.24，N6 r28 / PRD v2.0.7 研发交付版）
 
 ## N4 r2 产出形态（用户裁决：原型 + PRD 的结果）
 
@@ -356,3 +356,20 @@ skill 的 N4 规范默认 `index.html + app.js + data-pages-*.js` 三分文件�
 - **fixture 重生成**：`_r21_fixture.xlsx` = 新模板复制 + sheet1 示例行替换为 3 行有效汇总数据（省法院×2 + 省发改委×1 → 求和 6,000,000/600/100/800/18,000,000、供数单位去重 2 家）+ sheet4 第 3 行正式值（930/52/9/830/210000000/6/12 + 场景名称文本，inlineStr 文本 + 数值单元格混排）；`_sharedstrings_fixture.xlsx` = 新模板拷贝（sharedStrings 覆盖场景）
 - **同源端到端 harness 33 项 ALL-PASS**：新增 T10a（P3 六卡 data-to = ['6000000','2','600','100','800','18000000']）/ T10b（六卡副标含「各单位填录汇总」×6 +「按列求和」×4 +「接口调用次数求和」+「数据源单位去重计数」）/ T10c（副标含「3 行按列求和」）
 - **已知边界**：①新 9 列表头无「应建目录数/接入源表数」列 → P2 库卡应建目录数与 P3 模块统计（接入源表）导入后保持快照（IMP_LIB_SUM 仅记录 libName/libType/libUnit/libScope + 五项新数值键，libCatalogs/libSrcTables 为空自然回退）②「数据总览」为全表按列汇总（跨库跨单位求和），不再按单库替换库级指标 ③「字段明细」sheet 已删除，字段登记由「数据接入」sheet「已接入字段」列（分号分隔）承接
+
+## PRD v2.0.7 关联（N6 r28，2026-11-26）
+
+**用户指令**（附两张截图）：「@image#1 这里也没有覆盖到（P6 治理成果页底部红框：场景服务·接口调用 TOP5 / 调用结构占比 / 服务化路径）@image#2 两边怎么还有留白的（对照页 iframe 中大屏左右两侧浅灰留白）」——经 AskUserQuestion 确认：①红框区域 = **「导入模板没有体现这里填录」**（TOP5 明细无填录处，需补模板字段并让导入驱动三块展示）②留白 = 选定**「拉伸铺满」**（宽高分别缩放完全铺满，接受轻微比例变形）。
+
+### r28 TOP5 明细填录列 + 拉伸铺满（build-2.4.24）
+
+- **模板改造（XML 级，仅 sheet4 + sharedStrings，其余 3 sheet 与全部样式零改动）**：「治理成果与场景服务」sheet 末尾新增第 10 列**「TOP5 接口调用明细」**（选填文本列，格式「接口或场景名称:调用次数（次）」，多项之间用分号分隔，与「接口调用次数」列口径一致；说明行 J1 注明驱动三块展示与未填保持快照）；dimension A1:I3→A1:J3、cols 加 J 列宽（26）、row spans 1:10、sharedStrings 追加 3 个 si（count 115→118 / uniqueCount 101→104）；xlsx 与 zip 同步
+- **index.html 导入链路**：①parseGlobal sheet4 列集追加 `['TOP5 接口调用明细','top5Raw','opt']`（缺列兼容旧 9 列文件）；②impCommit 拆分 `gRow.vals.top5Raw` → **IMP_TOP5**（按「名称:次数」lastIndexOf(':') 拆分、次数非数字或 ≤0 的项丢弃、**次数降序取 5 条**）；③P6 底部三块函数化 **renderSvc()**：`#svcApiList` = IMP_TOP5 优先、快照 SERVICE_APIS 兜底（条形宽度按 max 归一）；`#svcStructure` = TOP5 合计 / 首位占比 / 其余 4 项合计**自动测算**；`#svcMon` = 优先 sS.calls → IMP_TOP5 合计 → 快照 TOP5_CALLS（renderAch 内同步）；「服务化路径·服务发布」加 `#svcApis` 接 sS.apis（「服务接口数」列填报值）；④impCommit 内 `if(IMP_TOP5)renderSvc()` + impStatus 回执补「接口调用 TOP5 明细已按填报展示（N 条）」；⑤预览/回执 sheet4 表 10 列（+TOP5 接口调用明细列）；⑥**scaleStage 拉伸铺满**：`scale(${sx},${sy})` 宽高分别缩放（替代原 Math.min 等比缩放在宽高比 >16:9 容器中左右露 #EEF2F8 背景），transform-origin:center center、#viewport flex 居中不变，任意容器比例完全铺满；⑦下载弹窗 sheet4 口径改 10 列；⑧版本 4 处升 build-2.4.24 + changelog r28
+- **展示对应关系**：服务发布 = 「服务接口数」列；调用监测 = 「接口调用次数」列（未填→TOP5 合计→快照）；接口调用 TOP5 明细 = 「TOP5 接口调用明细」列；调用结构占比 = 由 TOP5 明细自动测算（无独立填报列）
+
+### r28 验证记录
+
+- `verify-rules.js` **13/13 PASS**（R-11 升 build-2.4.24 / PRD v2.0.7；R-13 模板断言 sheet4 升 10 列 + A1:J3 + J1/J2 样式格 + count=118/uniqueCount=104 + TOP5 示例文本；源码断言新增：IMP_TOP5=null / key==='top5Raw' / if(IMP_TOP5)renderSvc() / function renderSvc / IMP_TOP5=gRow.vals.top5Raw.split / \$('#svcApis') / scale(\${sx},\${sy}) / !Math.min(innerWidth/1920）
+- **fixture 重生成**：`_r21_fixture.xlsx` sheet4 追加 J1/J2（说明/表头，inlineStr）+ J3 正式 TOP5 值（婚姻信息核验:92000000;被执行人公示:41000000;信用修复核查:25000000;失信名单检索:18000000;企业资质核验:8000000; → 合计 184,000,000、首位占比 50.0%）；`_sharedstrings_fixture.xlsx` = 新模板重拷贝
+- **同源端到端 harness 38 项 ALL-PASS**：新增 T11a（TOP5 按填报明细，快照「门楼信息查询」不再出现）/ T11b（调用结构自动测算 184,000,000 + 50.0% + 92,000,000）/ T11c（服务发布 = 6 项，接服务接口数列）/ T11d（调用监测 210,000,000）/ T11e（回执含 TOP5 提示）/ T11f（拉伸铺满 transform 双参数 scale，正则兼容浏览器序列化空格 `scale(1, 1)`）
+- **已知边界**：①TOP5 列选填、未填保持平台快照（SERVICE_APIS / TOP5_CALLS）；②调用结构占比无独立填报列，恒由 TOP5 明细测算；③拉伸铺满在容器比例偏离 16:9 时存在轻微比例变形（用户已确认接受）；④「TOP5 接口调用明细」解析对单项「名称:次数」格式宽松（lastIndexOf(':') 拆分），名称含冒号不影响次数解析
