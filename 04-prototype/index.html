@@ -709,7 +709,7 @@ main{position:absolute;left:0;top:calc(var(--top) + var(--sub));width:100%;heigh
     </nav>
     <div class="meta">
       <div class="snap">数据快照<b>2026-11-16</b></div>
-      <div class="buildtag" id="buildTag">build-2.4.20</div>
+      <div class="buildtag" id="buildTag">build-2.4.21</div>
       <div class="clock"><b id="clock">15:41:02</b><span id="today">2026.11.17 星期二</span></div>
       <button class="iconbtn" id="tourBtn" title="展陈巡播">▶</button>
       <button class="iconbtn" id="fullBtn" title="全屏">⛶</button>
@@ -717,7 +717,7 @@ main{position:absolute;left:0;top:calc(var(--top) + var(--sub));width:100%;heigh
   </header>
 
   <div class="subnav">
-    <div class="crumb" id="crumb"><b>库资源门户</b></div>
+    <div class="crumb" id="crumb"></div><!-- r25：面包屑中的「库资源门户」项全部删除（用户指令），初始值置空；setPage 按当前页填充其余层级 -->
     <div class="tabs" id="libTabs">
       <button data-goto="page-population" class="on">数据总览</button>
       <button data-goto="page-access">数据接入</button>
@@ -2182,7 +2182,7 @@ function renderAllTbl(){
     </tbody></table>`:'<div class="empty"><div>未找到匹配的数据表</div></div>';
 }
 function openAllDataModal(){
-  openModal(`<h2>全部已接入数据</h2><div class="msub">数据接入 · 全量数据表查询（F-049） · build-2.4.20</div>
+  openModal(`<h2>全部已接入数据</h2><div class="msub">数据接入 · 全量数据表查询（F-049） · build-2.4.21</div>
     <div class="mbody">
       <div class="search" style="margin-bottom:10px">⌕ <input id="allTblSearch" placeholder="搜索数据表名称 / 所属目录 / 数据源单位" oninput="renderAllTbl()"></div>
       <div id="allTblMeta" class="imp-tip" style="margin-bottom:8px"></div>
@@ -2394,7 +2394,7 @@ const IND_NUMS=[['libCatalogs','应建目录数'],['libRecords','库接入数据
 /* ---- 导入弹窗（N4 r10 · F-047 v1.5.0：抽屉改居中弹窗 + 导入后结果预览 + 错误提示规则见 03-prd.md §6） ---- */
 let impState=null;
 function openTplModal(){
-  openModal(`<h2>下载导入模板</h2><div class="msub">数据接入 · 通用版导入模板（F-046） · build-2.4.20</div>
+  openModal(`<h2>下载导入模板</h2><div class="msub">数据接入 · 通用版导入模板（F-046） · build-2.4.21</div>
     <div class="mbody">
       <div class="imp-tip" style="margin-bottom:14px">通用版导入模板（五工作表）：<b>「数据总览」</b>（8 列全部必填：单位 / 覆盖范围 / 库名称 / 库类型 / 库接入数据量 / 应建目录数 / 库数据字段数 / 库接入源表数；覆盖范围一类一行，按库名称匹配驱动大屏指标）、<b>「数据接入」</b>（目录级明细 7 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间，前 5 列必填；按「单位+目录」登记目录台账，已登记目录按填报值更新、新目录登记为导入目录）、<b>「数据治理」</b>（6 列全部必填：规则编号 / 库名称 / 库类型 / 目标表 / 字段 / 规则描述，规则细化到字段）、<b>「治理成果与场景服务」</b>（全平台汇总一行 8 列：流程节点数 / 治理字段次数 / 结果表数量 / 沉淀文档数 / 累计订阅次数 / 接口调用次数 / 服务接口数 / 规划场景数）、<b>「字段明细」</b>（所属数据目录须与平台已登记目录或「数据接入」sheet 填报目录一致）。<b>每个工作表第 1 行为说明行（字段含义与填写要求）、第 2 行为表头、第 3 行起为数据；示例数据含「示例」标记（任一单元格含「示例」的行导入自动跳过，正式填报覆盖第三行即可）。</b>各列填报口径详见模板内说明行。</div>
       <a class="tpl-link" style="margin-bottom:8px" href="templates/导入模板-通用版.xlsx" download>导入模板 - 通用版（六库合一 · 数据总览 + 数据接入 + 数据治理 + 治理成果与场景服务 + 字段明细）<span>下载 ↓</span></a>
@@ -2406,7 +2406,7 @@ function openImportModal(presetKey){
   impState=null;
   const libs=IMP_LIBS();
   const def=presetKey&&libs.some(l=>l.key===presetKey)?presetKey:'pop';
-  openModal(`<h2>Excel 导入</h2><div class="msub">数据接入 · 指标数值与目录台账导入（F-047） · build-2.4.20</div>
+  openModal(`<h2>Excel 导入</h2><div class="msub">数据接入 · 指标数值与目录台账导入（F-047） · build-2.4.21</div>
     <div class="mbody">
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
         <span style="font-size:12px;color:var(--muted)">目标库</span>
@@ -2853,11 +2853,12 @@ refreshCarousels();
 /* ================= navigation ================= */
 const PAGE_META={
   'page-overview':{nav:'overview',crumb:'<b>总览驾驶舱</b>',tabs:false},
-  'page-libraries':{nav:'libraries',crumb:'<b>库资源门户</b>',tabs:false},
-  'page-population':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>数据总览',tabs:true},
-  'page-access':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>数据接入',tabs:true},
-  'page-governance':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>数据治理',tabs:true},
-  'page-achievement':{nav:'libraries',crumb:'<b>库资源门户</b><i>/</i><b>人口基础库</b><i>/</i>治理成果 · 场景服务',tabs:true}
+  /* r25：面包屑中的「库资源门户」项全部删除（用户指令「库资源门户这个面包屑都要删除」）；P2 门户页默认直接进入，面包屑为空并隐藏；P3–P6 仅保留「人口基础库 / 当前页」层级 */
+  'page-libraries':{nav:'libraries',crumb:'',tabs:false},
+  'page-population':{nav:'libraries',crumb:'<b>人口基础库</b><i>/</i>数据总览',tabs:true},
+  'page-access':{nav:'libraries',crumb:'<b>人口基础库</b><i>/</i>数据接入',tabs:true},
+  'page-governance':{nav:'libraries',crumb:'<b>人口基础库</b><i>/</i>数据治理',tabs:true},
+  'page-achievement':{nav:'libraries',crumb:'<b>人口基础库</b><i>/</i>治理成果 · 场景服务',tabs:true}
   /* r22：'page-catalog'（数据资源清单）路由项随页移除 */
 };
 let currentPage='page-libraries';
@@ -2875,6 +2876,7 @@ function setPage(id){
   }
   const m=PAGE_META[id];
   $('#crumb').innerHTML=m.crumb;
+  $('#crumb').style.display=m.crumb?'':'none'; /* r25：P2 门户页面包屑为空，隐藏容器避免留下空白占位 */
   $('#libTabs').style.display=m.tabs?'flex':'none';
   $('#backBtn').style.display=m.tabs?'inline-block':'none';
   $$('#mainnav button').forEach(b=>b.classList.toggle('on',b.dataset.page===m.nav));
@@ -2918,7 +2920,7 @@ $('#fullBtn').onclick=()=>{
   else document.exitFullscreen();
 };
 
-/* init · build-2.4.4 新增 hash 导航（供 prototype-prd.html 对照页 iframe 联动）；build-2.4.5 新增数据接入 Excel 导入（F-046/F-047）；build-2.4.6 导入改弹窗交互 + 导入后结果预览 + 错误提示规则（PRD v1.5.0）；build-2.4.7 六库模板新增「数据表」工作表 + 导入解析支持数据表 sheet + 库卡右上角库元素图标 + 目录详情抽屉 Tab 下钻（目录信息/数据表/已接入字段）+ 查询全部已接入数据弹窗（F-048/F-049）；build-2.4.8（PRD v1.6.0）总览驾驶舱展示入口移除（导航/巡播/默认页改库资源门户，section 与口径保留存档）+ 导入模板简化为单工作表「数据目录」（12 列，含主要字段 1-3 与数据开始/截止时间）+ 导入解析适配新表头；build-2.4.9（PRD v1.7.0）导入模板增回「字段明细」独立 sheet（所属数据目录*、数据源单位*、字段名称*、字段类型、字段长度、字段说明，模板 = 双工作表）+ 导入全链路支持字段 sheet（字段名称去重合并进目录「已接入字段」items，示例/说明行与未登记目录引用自动跳过或标红）；build-2.4.10（PRD v1.7.1）字段类型改用英文类型名（varchar / int / decimal / date / datetime，模板示例数据与「填写说明」同步，导入解析不变）；build-2.4.11（PRD v1.7.2）「数据目录」sheet 去掉主要字段 1–3 三列（12→9 列，字段要素以「字段明细」sheet 为准），导入不再从主要字段写入 items（已接入字段仅由「字段明细」sheet 合并），示例数据与填写说明同步；build-2.4.12（PRD v1.7.3）导入改全要素必填（「数据目录」9 列全部必填、「字段明细」除字段说明外必填，缺失任一展示要素明确提示并阻止导入该行）+ 导入完整数据并入大屏展示（数据接入页单位视图合并导入目录并新增导入供数单位、目录抽屉展示全部要素并修复 undefined、数据治理-更新机制并入导入目录）+ impFmtRows 精确到个位（R-03）；build-2.4.13（PRD v1.7.4）导入表头级全要素校验（用户指令：填写的表头也要包含全部要素）——「数据目录」sheet 表头须包含全部 9 列要素列、「字段明细」表头须包含 5 个必填要素列（字段说明选填可缺），缺任一列文件级阻止导入并明确提示缺失列，模板「填写说明」增表头完整条款；build-2.4.14（PRD v1.7.5）导入模板对齐原型展示要素（用户指令：调整导入模板，把原型中展示的要素全部在导入模板中体现，下发各厅局填写后导入系统展示）——「数据目录」sheet 9→14 列（新增 需求字段数* / 接入状态* / 约定更新时间* / 物理表源表名* / 治理表名*），导入按填报值登记接入状态（已接入/待接入，不再一律「已接入」）并写入 req/agreed/src/gov，目录抽屉显示真实源表/治理表/约定更新时间/需求字段数（填「—」显示「待治理登记」占位，未知≠0），数据表 Tab 由填报表名派生源表/治理表（不虚构编码）；build-2.4.16（PRD v1.7.6）需求转向：通用版导入模板 + 指标数值驱动展示（用户指令：不要管之前的需求，现在只是做模板，是为了有些单位无法提供数据，只提供各项指标数值，用于省里做展示用）——模板改为一个通用版文件（六库合一，三工作表：「指标数值」31 列 = 库名称/库类型/牵头单位/覆盖范围 预填 + 27 项指标数值列 + 健康度，供无法提供目录明细数据的单位只填数值；「数据目录」14 列与「字段明细」保留供能提供明细的单位填写）+ 导入按表名定位「数据目录」、支持仅含「指标数值」的文件 + 新增 impMapIndHeader/IND_NUMS 解析「指标数值」sheet（数值校验、库名称匹配六库、示例与未填报行跳过）+ impCommit 写入 IMP_LIB_SUM 并刷新展示（P2 库卡应建目录数 renderLibGrid、P3 renderPopKpis/renderPopMods 六 KPI 与四模块统计、P6 renderAch 五 KPI、P7 renderSceneKpis 四 KPI——厅局填什么就展示什么，未填报指标保持快照）+ 导入回执三区段（指标/目录/字段）；build-2.4.17（PRD v1.8.1 · r21）用户指令五项调整——①各模块明细展示区增加轮播（data-caro 标记 + startCarousel/refreshCarousels：溢出行进/到底回顶/hover 暂停/刷新重建，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮与两处内联「导入台账 Excel」，空白区域 2 秒内连击 3 次浮出隐藏入口面板、再次三连击收起）③数据治理页重构（统计总数 4 卡置顶、下方规则明细，移除「更新机制」Tab 与 renderGovUpdate）④治理成果页左侧板块丰富（填报进度/填报完整度/沉淀文档合计/填报口径卡/贡献 TOP/归集链路）+ 单位填报列表删除恒空「文档 —」项⑤场景服务并入治理成果页（P7 删除、导航 5→4、「规划场景」展示全面移除）+ 导入模板「治理成果」「场景服务」两 sheet 合并为「治理成果与场景服务」（8 列全平台汇总一行）；build-2.4.18（r22）用户指令两项——①资源清单页移除（导航「资源清单」/ P8 page-catalog 整页 / 相关 JS 区块与 drawRing3D / 库抽屉「前往资源清单」按钮 / PAGE_META·TOUR 路由项删除；LEDGER_CATS 数据保留供 P2/P3/导入链路）②PRD 重写为研发交付版 v2.0.0（仅保留当前原型对应需求，历史调整不体现）；build-2.4.19（r23）用户指令「库资源门户文字也去掉，上面已经没有 tab 了，有点多余，直接从页面进就可以了」——顶栏主导航最后一个按钮「库资源门户」移除（空 #mainnav 容器保留维持布局），默认页即库资源门户、库卡进入人口库详情、左上返回按钮回门户；build-2.4.20（r24 · PRD v2.0.3）用户指令「导入模板还是不对，现在的数据接入 sheet 应该是数据总览，再增加一张数据接入 sheet」——导入模板改五工作表（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）：原「数据接入」8 列改名「数据总览」，新增「数据接入」目录级明细 sheet（7 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间），导入按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 数据接入页与目录抽屉；已登记目录按填报值更新、新目录登记为导入目录；更新频率枚举校验），回执与预览增「数据接入目录」区段 */
+/* init · build-2.4.4 新增 hash 导航（供 prototype-prd.html 对照页 iframe 联动）；build-2.4.5 新增数据接入 Excel 导入（F-046/F-047）；build-2.4.6 导入改弹窗交互 + 导入后结果预览 + 错误提示规则（PRD v1.5.0）；build-2.4.7 六库模板新增「数据表」工作表 + 导入解析支持数据表 sheet + 库卡右上角库元素图标 + 目录详情抽屉 Tab 下钻（目录信息/数据表/已接入字段）+ 查询全部已接入数据弹窗（F-048/F-049）；build-2.4.8（PRD v1.6.0）总览驾驶舱展示入口移除（导航/巡播/默认页改库资源门户，section 与口径保留存档）+ 导入模板简化为单工作表「数据目录」（12 列，含主要字段 1-3 与数据开始/截止时间）+ 导入解析适配新表头；build-2.4.9（PRD v1.7.0）导入模板增回「字段明细」独立 sheet（所属数据目录*、数据源单位*、字段名称*、字段类型、字段长度、字段说明，模板 = 双工作表）+ 导入全链路支持字段 sheet（字段名称去重合并进目录「已接入字段」items，示例/说明行与未登记目录引用自动跳过或标红）；build-2.4.10（PRD v1.7.1）字段类型改用英文类型名（varchar / int / decimal / date / datetime，模板示例数据与「填写说明」同步，导入解析不变）；build-2.4.11（PRD v1.7.2）「数据目录」sheet 去掉主要字段 1–3 三列（12→9 列，字段要素以「字段明细」sheet 为准），导入不再从主要字段写入 items（已接入字段仅由「字段明细」sheet 合并），示例数据与填写说明同步；build-2.4.12（PRD v1.7.3）导入改全要素必填（「数据目录」9 列全部必填、「字段明细」除字段说明外必填，缺失任一展示要素明确提示并阻止导入该行）+ 导入完整数据并入大屏展示（数据接入页单位视图合并导入目录并新增导入供数单位、目录抽屉展示全部要素并修复 undefined、数据治理-更新机制并入导入目录）+ impFmtRows 精确到个位（R-03）；build-2.4.13（PRD v1.7.4）导入表头级全要素校验（用户指令：填写的表头也要包含全部要素）——「数据目录」sheet 表头须包含全部 9 列要素列、「字段明细」表头须包含 5 个必填要素列（字段说明选填可缺），缺任一列文件级阻止导入并明确提示缺失列，模板「填写说明」增表头完整条款；build-2.4.14（PRD v1.7.5）导入模板对齐原型展示要素（用户指令：调整导入模板，把原型中展示的要素全部在导入模板中体现，下发各厅局填写后导入系统展示）——「数据目录」sheet 9→14 列（新增 需求字段数* / 接入状态* / 约定更新时间* / 物理表源表名* / 治理表名*），导入按填报值登记接入状态（已接入/待接入，不再一律「已接入」）并写入 req/agreed/src/gov，目录抽屉显示真实源表/治理表/约定更新时间/需求字段数（填「—」显示「待治理登记」占位，未知≠0），数据表 Tab 由填报表名派生源表/治理表（不虚构编码）；build-2.4.16（PRD v1.7.6）需求转向：通用版导入模板 + 指标数值驱动展示（用户指令：不要管之前的需求，现在只是做模板，是为了有些单位无法提供数据，只提供各项指标数值，用于省里做展示用）——模板改为一个通用版文件（六库合一，三工作表：「指标数值」31 列 = 库名称/库类型/牵头单位/覆盖范围 预填 + 27 项指标数值列 + 健康度，供无法提供目录明细数据的单位只填数值；「数据目录」14 列与「字段明细」保留供能提供明细的单位填写）+ 导入按表名定位「数据目录」、支持仅含「指标数值」的文件 + 新增 impMapIndHeader/IND_NUMS 解析「指标数值」sheet（数值校验、库名称匹配六库、示例与未填报行跳过）+ impCommit 写入 IMP_LIB_SUM 并刷新展示（P2 库卡应建目录数 renderLibGrid、P3 renderPopKpis/renderPopMods 六 KPI 与四模块统计、P6 renderAch 五 KPI、P7 renderSceneKpis 四 KPI——厅局填什么就展示什么，未填报指标保持快照）+ 导入回执三区段（指标/目录/字段）；build-2.4.17（PRD v1.8.1 · r21）用户指令五项调整——①各模块明细展示区增加轮播（data-caro 标记 + startCarousel/refreshCarousels：溢出行进/到底回顶/hover 暂停/刷新重建，分页区不轮播）②导入入口隐藏化（移除页面全部导入/模板按钮与两处内联「导入台账 Excel」，空白区域 2 秒内连击 3 次浮出隐藏入口面板、再次三连击收起）③数据治理页重构（统计总数 4 卡置顶、下方规则明细，移除「更新机制」Tab 与 renderGovUpdate）④治理成果页左侧板块丰富（填报进度/填报完整度/沉淀文档合计/填报口径卡/贡献 TOP/归集链路）+ 单位填报列表删除恒空「文档 —」项⑤场景服务并入治理成果页（P7 删除、导航 5→4、「规划场景」展示全面移除）+ 导入模板「治理成果」「场景服务」两 sheet 合并为「治理成果与场景服务」（8 列全平台汇总一行）；build-2.4.18（r22）用户指令两项——①资源清单页移除（导航「资源清单」/ P8 page-catalog 整页 / 相关 JS 区块与 drawRing3D / 库抽屉「前往资源清单」按钮 / PAGE_META·TOUR 路由项删除；LEDGER_CATS 数据保留供 P2/P3/导入链路）②PRD 重写为研发交付版 v2.0.0（仅保留当前原型对应需求，历史调整不体现）；build-2.4.19（r23）用户指令「库资源门户文字也去掉，上面已经没有 tab 了，有点多余，直接从页面进就可以了」——顶栏主导航最后一个按钮「库资源门户」移除（空 #mainnav 容器保留维持布局），默认页即库资源门户、库卡进入人口库详情、左上返回按钮回门户；build-2.4.20（r24 · PRD v2.0.3）用户指令「导入模板还是不对，现在的数据接入 sheet 应该是数据总览，再增加一张数据接入 sheet」——导入模板改五工作表（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）：原「数据接入」8 列改名「数据总览」，新增「数据接入」目录级明细 sheet（7 列：数据源单位* / 数据目录* / 字段数* / 数据量* / 更新频率* / 数据时间范围 / 最后更新时间），导入按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 数据接入页与目录抽屉；已登记目录按填报值更新、新目录登记为导入目录；更新频率枚举校验），回执与预览增「数据接入目录」区段；build-2.4.21（r25 · PRD v2.0.4）用户指令「库资源门户这个面包屑都要删除」——面包屑（#crumb）中的「库资源门户」项全部删除：PAGE_META 5 个页面首段移除（P2 门户页面包屑置空并隐藏容器，P3–P6 仅保留「人口基础库 / 当前页」层级）、HTML 初始 #crumb 置空、setPage 按 crumb 空值切换隐藏；顶栏主导航（r23 已空）与页面内 Tab 不变 */
 function pageFromHash(){
   const h=(location.hash||'').replace(/^#/,'');
   return (h && h.indexOf('page-')===0 && document.getElementById(h)) ? h : null;

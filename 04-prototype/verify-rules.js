@@ -17,6 +17,7 @@
  * r21：用户指令五项调整（PRD v2.0.0 / build-2.4.18）——R-11 升 build-2.4.18；R-06 改写为「既有服务独立统计，规划场景不再展示」（场景服务并入治理成果页）；R-12 升四工作表口径；R-13 重写：合并 sheet「治理成果与场景服务」8 列、page-scenes 移除、更新机制移除、data-caro 轮播、隐藏导入入口三连击、单位填报列表无「文档 —」、模板解压断言改四工作表
  * r22：用户指令两项（PRD v2.0.0 / build-2.4.18）——①资源清单页移除：R-01 改断言库卡「应建数据目录/台账已接入/台账待补充」并列（原 P8 双口径统计随页删除）、R-02 改断言「待补充」口径、R-11 升 build-2.4.18、R-13 增无 page-catalog 断言②PRD 重写为研发交付版 v2.0.0→v2.0.1（Gate 修改意见：只保留功能点与业务规则两部分，业务规则逐条写清）；r23：顶栏主导航最后一个按钮「库资源门户」移除——R-11 升 build-2.4.19 + 加无 `data-page="libraries"` 结构性断言（无主导航入口）
  * r24：用户指令「导入模板还是不对，现在的数据接入 sheet 应该是数据总览，再增加一张数据接入 sheet」——模板改五工作表（数据总览 / 数据接入 / 数据治理 / 治理成果与场景服务 / 字段明细）：R-11 升 build-2.4.20、PRD v2.0.3；R-12/R-13 升五工作表口径；R-13 增「数据接入」目录级明细 sheet（7 列）解压断言 + 目录台账写入断言（LEDGER_CATS imported 标记 / impCatKeys / 更新频率枚举）
+ * r25：用户指令「库资源门户这个面包屑都要删除」——R-11 升 build-2.4.21 / PRD v2.0.4 + 加结构性断言（#crumb 无「库资源门户」项、P2 空 crumb 隐藏、P3–P6 仅保留「人口基础库 / 当前页」层级）
  */
 'use strict';
 const fs = require('fs');
@@ -82,11 +83,14 @@ const RULES = [
     doc: '数据字段 1,023 项；已接入明细 896 / 需求 982（03-prd.md 7.2 / R-10）',
     test: () => dom.includes('1,023') && src.includes('896') },
   { id: 'R-11', name: '版本标识可见 + hash 导航（对照页联动）',
-    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.20），与 PRD / state 版本一致（PRD v2.0.3）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）',
-    test: () => dom.includes('build-2.4.20') && src.includes('id="buildTag"')
+    doc: '原型顶栏可见 build-X.Y.Z（build-2.4.21），与 PRD / state 版本一致（PRD v2.0.4）；支持 hash 导航供 prototype-prd.html 对照页 iframe 联动（N4 通过条件 / R-11）；r25：面包屑（#crumb）无「库资源门户」项',
+    test: () => dom.includes('build-2.4.21') && src.includes('id="buildTag"')
       && !src.includes('data-page="libraries"')
+      /* r25：面包屑中的「库资源门户」项全部删除（P2 门户页空且隐藏；P3–P6 仅保留「人口基础库 / 当前页」） */
+      && !src.includes('<b>库资源门户</b>') && src.includes('<div class="crumb" id="crumb"></div>')
+      && src.includes("$('#crumb').style.display=m.crumb?'':'none'") && src.includes("crumb:'<b>人口基础库</b>")
       && src.includes("addEventListener('hashchange'") && src.includes('window.setPage=setPage') },
-  { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版五工作表模板（F-046/F-047 / PRD v2.0.3）',
+  { id: 'R-12', name: '隐藏导入入口（三连击）+ Excel 导入弹窗 + 导入后预览 + 通用版五工作表模板（F-046/F-047 / PRD v2.0.4）',
     doc: '03-prd.md §3 / §6：大屏不直接展示导入模板/导入入口，空白区域 2 秒内连击 3 次浮出隐藏入口面板；导入居中弹窗（遮罩/Escape/焦点约束），确认后提供导入结果预览，错误提示规则分级落地；零依赖解析写入内存并保留双口径与未知≠0 口径（N4 r9 新增 / r20 指标数值 / r21 四工作表+隐藏入口 / r24 五工作表）',
     test: () => dom.includes('下载导入模板') && dom.includes('Excel 导入') && src.includes('openImportModal')
       && src.includes('openModal') && src.includes("id=\"modal\"") && src.includes('数据总览导入结果') && src.includes('数据接入目录导入结果')
@@ -94,7 +98,7 @@ const RULES = [
       /* r21 隐藏导入入口：页面无直接导入按钮，空白三连击开启 */
       && !src.includes('id="btnTpl"') && !src.includes('id="btnImport"')
       && src.includes('hiddenEntry') && src.includes('_hideClicks') && src.includes('btnTplH') && src.includes('btnImportH') },
-  { id: 'R-13', name: '明细区轮播 / 五工作表导入模板（数据总览+数据接入目录明细）/ 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-019b/F-021/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.3）',
+  { id: 'R-13', name: '明细区轮播 / 五工作表导入模板（数据总览+数据接入目录明细）/ 治理页重构 / 场景并入成果页 / 字段级规则 / 目录分页与抽屉精简（F-016/F-018/F-019/F-019b/F-021/F-022/F-026/F-027/F-046–F-050 / PRD v2.0.4）',
     doc: '03-prd.md §3–§6：通用版模板五工作表（数据总览 8 列全必填 / 数据接入目录级明细 7 列（数据源单位 / 数据目录 / 字段数 / 数据量 / 更新频率 / 数据时间范围 / 最后更新时间，前 5 列必填 + 更新频率枚举）/ 数据治理 6 列全必填·字段级 / 治理成果与场景服务 8 列全局一行（原两 sheet 合并） / 字段明细 5 必填列），每 sheet 第 1 行说明行、第 2 行表头、第 3 行起数据（任一单元格含「示例」整行跳过）；「数据接入」sheet 按「数据源单位+数据目录」写目录台账（LEDGER_CATS，imported 标记驱动 P4 / 目录抽屉），已登记目录按填报值更新、新目录登记为导入目录；合并 sheet 按键拆分写 IMP_ACH/IMP_SCENE 驱动合并页 KPI；治理成果页左侧板块丰富、单位填报列表无「文档 —」；治理页统计总数置顶+明细在下、「更新机制」Tab 移除；场景服务并入治理成果页、规划场景不再展示；各明细滚动区 data-caro 轮播（分页区不轮播）；填报值替换、未填保持快照（所有数据来源均为数据表导入）',
     test: () => dom.includes('查询全部已接入数据') && src.includes('LIB_ICONS') && src.includes('openAllDataModal')
       && src.includes('openDirDrawer') && src.includes('DATA_TABLES')

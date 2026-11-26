@@ -1,4 +1,4 @@
-# 04-prototype/ 结构说明（build-2.4.20，N6 r24 / PRD v2.0.3 研发交付版）
+# 04-prototype/ 结构说明（build-2.4.21，N6 r25 / PRD v2.0.4 研发交付版）
 
 ## N4 r2 产出形态（用户裁决：原型 + PRD 的结果）
 
@@ -308,3 +308,18 @@ skill 的 N4 规范默认 `index.html + app.js + data-pages-*.js` 三分文件�
 - **同源端到端 harness 26 项 ALL-PASS**（新增 T8a-d：T8a 目录解析「数据接入目录 2 行」/ T8b 确认导入可用 / T8c 回执「新增登记 1 · 更新 1」/ T8d P4 导入目录行「失信被执行人名单 + 导入标记 + 2,100,000 条」）
 - **调试修复**：T8c/d 首跑 FAIL——impCommit 引用 impOnFile 局部的 `num` 函数（ReferenceError）→ impCommit 内补局部 `num` 定义后全绿
 - **已知边界**：数据接入 sheet 导入的目录台账为内存态（刷新还原快照）；`DATA_TABLES` 全量弹窗仍为快照口径
+
+## PRD v2.0.4 关联（N6 r25，2026-11-26）
+
+**用户指令**：「库资源门户这个面包屑都要删除」（截图红框标注 P2 门户页与 P3 人口库详情页面包屑中的「库资源门户」项）。
+
+### r25 面包屑「库资源门户」项移除（build-2.4.21）
+
+- `index.html`：`PAGE_META` 5 个页面 crumb 首段全部删除——P2 门户页 crumb 置空、P3–P6 仅保留「人口基础库 / 当前页」层级；HTML 初始 #crumb 置空；`setPage` 增空值隐藏切换；顶栏主导航（r23 已空）与 #libTabs 页面内 Tab 不变；版本 4 处升 build-2.4.21 + changelog r25
+- 判定口径：R-11 增结构性断言（无库资源门户 crumb / 空 crumb 隐藏 / P3 crumb 以「人口基础库」开头）
+
+### r25 验证记录
+
+- `verify-rules.js` **13/13 PASS**（R-11 升 build-2.4.21 / PRD v2.0.4；R-12/R-13 名称版本同步）
+- **同源端到端 harness 29 项 ALL-PASS**：新增 T9a（P2 门户页 crumb 为空且隐藏）/ T9b（P3 crumb 含「人口基础库 / 数据总览」且无「库资源门户」）/ T9c（切 page-access 后 crumb 无「库资源门户」）
+- **已知边界**：对照页右侧 PRD 面板页标题「库资源门户」为页面名（非面包屑），按用户指令未改动
