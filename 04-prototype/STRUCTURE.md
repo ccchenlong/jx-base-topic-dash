@@ -1,4 +1,4 @@
-# 04-prototype/ 结构说明（build-2.4.24，N6 r28 / PRD v2.0.7 研发交付版）
+# 04-prototype/ 结构说明（build-2.4.25，N6 r29 / PRD v2.0.8 研发交付版）
 
 ## N4 r2 产出形态（用户裁决：原型 + PRD 的结果）
 
@@ -373,3 +373,20 @@ skill 的 N4 规范默认 `index.html + app.js + data-pages-*.js` 三分文件�
 - **fixture 重生成**：`_r21_fixture.xlsx` sheet4 追加 J1/J2（说明/表头，inlineStr）+ J3 正式 TOP5 值（婚姻信息核验:92000000;被执行人公示:41000000;信用修复核查:25000000;失信名单检索:18000000;企业资质核验:8000000; → 合计 184,000,000、首位占比 50.0%）；`_sharedstrings_fixture.xlsx` = 新模板重拷贝
 - **同源端到端 harness 38 项 ALL-PASS**：新增 T11a（TOP5 按填报明细，快照「门楼信息查询」不再出现）/ T11b（调用结构自动测算 184,000,000 + 50.0% + 92,000,000）/ T11c（服务发布 = 6 项，接服务接口数列）/ T11d（调用监测 210,000,000）/ T11e（回执含 TOP5 提示）/ T11f（拉伸铺满 transform 双参数 scale，正则兼容浏览器序列化空格 `scale(1, 1)`）
 - **已知边界**：①TOP5 列选填、未填保持平台快照（SERVICE_APIS / TOP5_CALLS）；②调用结构占比无独立填报列，恒由 TOP5 明细测算；③拉伸铺满在容器比例偏离 16:9 时存在轻微比例变形（用户已确认接受）；④「TOP5 接口调用明细」解析对单项「名称:次数」格式宽松（lastIndexOf(':') 拆分），名称含冒号不影响次数解析
+
+## PRD v2.0.8 关联（N6 r29，2026-11-27）
+
+**用户指令**（附截图）：「导入模板还缺少这块的数据」——红框 = P6「服务化路径」面板（服务发布 5 项 + 进度条 / 调用监测 125,740,861 次 + 进度条 / 「已发布」「调用正常」徽章）。经 AskUserQuestion 确认选定**「补专门列，整块可填」**（数值与状态均补专门填录列，进度条按数值自动测算）。
+
+### r29 服务化路径整块填录（build-2.4.25）
+
+- **模板改造（XML 级，仅 sheet4 + sharedStrings，其余 3 sheet 与全部样式零改动）**：「治理成果与场景服务」sheet 从 10 列扩到 **14 列**，追加 K–N 四个选填列——K「服务发布项数」（数值）/ L「调用监测次数」（数值）/ M「发布状态」（文本，多项分号分隔）/ N「调用状态」（文本，多项分号分隔）；dimension A1:J3→A1:N3、cols 加 11–14 列宽、三行 spans 全改 1:14；sharedStrings 追加 12 个 si（说明行 4 + 表头 4 + 示例 4，示例均含「示例」自动跳过），count 118→130 / uniqueCount 104→116；zip 14,678 B。
+- **index.html 导入链路**：①parseGlobal sheet4 列集追加 `['服务发布项数','svcPub','opt']` / `svcMonCnt` / `pubStatus` / `callStatus`（pubStatus/callStatus 走文本键不做数字校验）；②impCommit 拆分写 **IMP_SVCPATH**（`{pub,calls,pubStatus[],callStatus[]}`）；③新增 **renderSvcPath()** 统一渲染「服务化路径」整块——服务发布优先 新列 svcPub → 旧列「服务接口数」sS.apis → 快照 5 项；调用监测优先 新列 svcMonCnt → 旧列 sS.calls → TOP5 合计 → 快照 TOP5_CALLS；两条进度条按填报值相对平台快照基准自动测算并封顶 100%（5 项↔88%、125,740,861 次↔64%，未填保持原值）；状态徽章按「发布状态 / 调用状态」分号拆分生成（未填保持「已发布」「调用正常」）；④renderAch 不再单独管服务化路径，impCommit 只要 sheet4 有有效行即调 renderSvc()（幂等重算三块）；⑤预览/回执 sheet4 表改 14 列（含仅填新列的 gRow 也出回执）+ impStatus 回执补服务化路径提示；⑥下载弹窗 sheet4 口径改 14 列；⑦版本 4 处升 build-2.4.25 + changelog r29。
+- **取值优先级**：新列 > 旧列（「服务接口数 / 接口调用次数」）> 快照。fixture 用 K3=8（旧列 G3=6）、L3=180,000,000（旧列 F3=210,000,000）验证新列优先；状态填「试运行 / 调用正常」验证徽章替换。
+- **已知边界**：①进度条为相对快照基准的视觉测算（封顶 100%），非业务指标、不参与调平；②状态徽章最多展示 4 个（两列各取前若干），未填保持快照；③新列与旧列可同时填，数值以新列为准（旧列仍驱动 P6 顶部 KPI 与 P3 汇总，二者口径独立）；④未填任何新列时服务化路径完全保持平台快照。
+
+### r29 验证记录
+
+- `verify-rules.js` **13/13 PASS**（R-11 升 build-2.4.25 / PRD v2.0.8；R-13 sheet4 断言升 14 列表头 + A1:N3 + K–N 三行样式格 + spans 1:14 ×3 + count=130/uniqueCount=116 + 4 个示例文本；源码断言新增 IMP_SVCPATH 声明 / pubStatus/callStatus 文本键 / `if(gRow)renderSvc()` / renderSvcPath / svcPubBar / svcMonBar / svcBadges）
+- **fixture 重生成**：`_r21_fixture.xlsx` sheet4 追加 K1–N3（说明/表头 inlineStr + 正式值 K3=8 / L3=180000000 / M3=试运行 / N3=调用正常）；`_sharedstrings_fixture.xlsx` = 新模板重拷贝
+- **同源端到端 harness 44 项 ALL-PASS**：新增 T12a（服务发布按新列 = 8 项）/ T12b（调用监测新列优先 180,000,000，且不再显示旧列 210,000,000）/ T12c（状态徽章「试运行」「调用正常」，无「已发布」）/ T12d（进度条 100% / 92%）/ T12e（回执表 14 列）/ T12f（回执提示）；同步修正 T4b / T11c / T11d 三条旧断言为新列优先口径
